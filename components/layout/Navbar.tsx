@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { createSupabaseBrowserClient } from '@/lib/supabase'
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -16,6 +16,8 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true)
+
+    const supabase = createSupabaseBrowserClient()
 
     const checkUser = async () => {
       const { data: { session } } =

@@ -15,4 +15,12 @@ export function createSupabaseBrowserClient() {
   return browserClient
 }
 
-export const supabase = createSupabaseBrowserClient()
+// ✅ Proxy — lazy client, only created when first used not when imported
+export const supabase = new Proxy(
+  {} as ReturnType<typeof createBrowserClient>,
+  {
+    get(_, prop: string) {
+      return (createSupabaseBrowserClient() as any)[prop]
+    },
+  }
+)
