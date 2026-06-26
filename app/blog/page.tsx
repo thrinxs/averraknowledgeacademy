@@ -1,6 +1,6 @@
-'use client'
+// app/blog/page.tsx
+// ✅ Server Component — no 'use client', renders statically
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
   BookOpen,
@@ -10,42 +10,177 @@ import {
   TrendingUp,
   MapPin,
   Layers,
-  Bell,
-  CheckCircle,
   ArrowRight,
   Newspaper,
   Database,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import NotifyForm from '@/components/blog/NotifyForm'
+
+// ─── Static data ──────────────────────────────────────────────────────────────
+
+const STAT_CARDS = [
+  {
+    icon: <Globe className="w-5 h-5" />,
+    value: '50+',
+    label: 'Countries Covered',
+    color: '#062850',
+  },
+  {
+    icon: <BookOpen className="w-5 h-5" />,
+    value: '100+',
+    label: 'Fields of Study',
+    color: '#325E84',
+  },
+  {
+    icon: <BarChart3 className="w-5 h-5" />,
+    value: '500+',
+    label: 'Scholarships Tracked',
+    color: '#497296',
+  },
+  {
+    icon: <TrendingUp className="w-5 h-5" />,
+    value: 'Weekly',
+    label: 'Database Updates',
+    color: '#1D4469',
+  },
+] as const
+
+const COUNTRY_TAGS = [
+  'United Kingdom',
+  'Germany',
+  'Australia',
+  'Canada',
+  'United States',
+  'South Korea',
+  'Japan',
+  'Netherlands',
+]
+
+const FIELD_TAGS = [
+  'STEM',
+  'Medicine',
+  'Law',
+  'Business',
+  'Arts & Humanities',
+  'Agriculture',
+  'Peace Studies',
+  'Computer Science',
+]
+
+const LEVEL_TAGS = [
+  'Undergraduate',
+  "Master's",
+  'PhD',
+  'Postdoctoral',
+  'LLM',
+  'Fellowship',
+  'Short Course',
+]
+
+const TYPE_TAGS = [
+  'Fully Funded',
+  'Partially Funded',
+  'Tuition Only',
+  'Stipend Only',
+  'No IELTS Required',
+  'Women Only',
+  'Government Scholarships',
+]
+
+const STAT_CATEGORIES = [
+  {
+    icon: <MapPin className="w-5 h-5 text-white" />,
+    iconBg: '#062850',
+    title: 'Scholarships by Country',
+    description:
+      'Explore how many scholarships are available in each destination country — from the UK and Germany to Australia and South Korea.',
+    tags: COUNTRY_TAGS,
+  },
+  {
+    icon: <BookOpen className="w-5 h-5 text-white" />,
+    iconBg: '#325E84',
+    title: 'Scholarships by Field',
+    description:
+      'Find scholarships available in your specific field — from STEM and Medicine to Law, Business, Arts, and Agriculture.',
+    tags: FIELD_TAGS,
+  },
+  {
+    icon: <GraduationCap className="w-5 h-5 text-white" />,
+    iconBg: '#497296',
+    title: 'Scholarships by Degree Level',
+    description:
+      "Whether you're applying for an undergraduate degree, a master's, a PhD, or a postdoctoral fellowship — see what's available at your level.",
+    tags: LEVEL_TAGS,
+  },
+  {
+    icon: <Layers className="w-5 h-5 text-white" />,
+    iconBg: '#1D4469',
+    title: 'Scholarships by Type',
+    description:
+      'Browse fully funded, partially funded, tuition-only, and stipend-only scholarships — filter by exactly what covers your needs.',
+    tags: TYPE_TAGS,
+  },
+]
+
+const ARTICLE_GROUPS = [
+  {
+    category: 'Scholarship Guides',
+    color: '#062850',
+    articles: [
+      'How to Find Fully Funded Scholarships in 2026',
+      'Top 10 Countries for International Students',
+      'How to Write a Scholarship SOP That Gets Noticed',
+      'What Scholarship Committees Really Look For',
+    ],
+  },
+  {
+    category: 'Study Abroad Tips',
+    color: '#325E84',
+    articles: [
+      'How to Choose the Right Country for Your Career Goals',
+      'Study in Germany: A Complete Guide for Africans',
+      'IELTS vs TOEFL — Which Should You Take?',
+      'How to Get a Student Visa Step by Step',
+    ],
+  },
+  {
+    category: 'Career & Skills',
+    color: '#497296',
+    articles: [
+      'Top Skills Employers Are Looking for in 2026',
+      'How to Switch Careers Successfully',
+      'Building a CV That Stands Out Internationally',
+      'How Certifications Can Boost Your Salary',
+    ],
+  },
+]
+
+// ─── Tag chip ─────────────────────────────────────────────────────────────────
+
+function Tag({ label }: { label: string }) {
+  return (
+    <span
+      className="text-xs px-3 py-1 rounded-full font-medium"
+      style={{ backgroundColor: '#E2EEF7', color: '#325E84' }}
+    >
+      {label}
+    </span>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function BlogPage() {
-  const [mounted, setMounted] = useState(false)
-  const [email, setEmail] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) return null
-
-  function handleNotify(e: React.FormEvent) {
-    e.preventDefault()
-    if (email.trim()) {
-      setSubmitted(true)
-      setEmail('')
-    }
-  }
-
   return (
     <main className="min-h-screen bg-white">
 
-      {/* ── HERO ───────────────────────────────────────── */}
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section
         className="relative overflow-hidden py-24 md:py-32"
         style={{ backgroundColor: '#062850' }}
       >
-        {/* Background glow */}
+        {/* Background glows */}
         <div
           className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl pointer-events-none"
           style={{ backgroundColor: '#97C3E0' }}
@@ -57,7 +192,7 @@ export default function BlogPage() {
 
         <div className="relative max-w-4xl mx-auto px-6 text-center">
 
-          {/* Coming Soon badge */}
+          {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/20 bg-white/10 text-white text-sm font-medium mb-8">
             <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
             Coming Soon
@@ -65,52 +200,24 @@ export default function BlogPage() {
 
           <h1 className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
             Averra Blog &{' '}
-            <span style={{ color: '#97C3E0' }}>
-              Scholarship Insights
-            </span>
+            <span style={{ color: '#97C3E0' }}>Scholarship Insights</span>
           </h1>
 
           <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto leading-relaxed mb-12">
-            A resource hub combining expert scholarship guidance, live
-            statistics from our scholarship database, and practical
-            advice for students and professionals worldwide.
+            A resource hub combining expert scholarship guidance, live statistics
+            from our scholarship database, and practical advice for students and
+            professionals worldwide.
           </p>
 
-          {/* Notify form */}
-          {!submitted ? (
-            <form
-              onSubmit={handleNotify}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
-              <input
-                type="email"
-                placeholder="Enter your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-white/50 transition-all"
-              />
-              <Button
-                type="submit"
-                className="px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                style={{ backgroundColor: '#497296', color: '#fff' }}
-              >
-                <Bell className="w-4 h-4 mr-2" />
-                Notify Me
-              </Button>
-            </form>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-green-400 font-medium text-lg">
-              <CheckCircle className="w-5 h-5" />
-              You&apos;re on the list! We&apos;ll notify you when we launch.
-            </div>
-          )}
+          {/* ✅ Each form is its own isolated client component */}
+          <NotifyForm placeholder="Enter your email address" />
         </div>
       </section>
 
-      {/* ── TWO PILLARS ─────────────────────────────────── */}
+      {/* ── TWO PILLARS ───────────────────────────────────────────────────── */}
       <section className="py-20 px-6" style={{ backgroundColor: '#F0F6FB' }}>
         <div className="max-w-5xl mx-auto">
+
           <div className="text-center mb-14">
             <h2
               className="text-3xl md:text-4xl font-bold mb-4"
@@ -119,9 +226,8 @@ export default function BlogPage() {
               Two Things In One Place
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              The Averra Blog is not just articles. It combines expert
-              editorial content with live data pulled directly from our
-              scholarship database.
+              The Averra Blog is not just articles. It combines expert editorial
+              content with live data pulled directly from our scholarship database.
             </p>
           </div>
 
@@ -140,9 +246,9 @@ export default function BlogPage() {
               </div>
               <h3 className="text-2xl font-bold mb-3">Editorial Blog</h3>
               <p className="text-white/70 leading-relaxed mb-6">
-                Expert-written articles, guides, and advice covering
-                scholarships, study abroad, career development, skills
-                training, and academic success.
+                Expert-written articles, guides, and advice covering scholarships,
+                study abroad, career development, skills training, and academic
+                success.
               </p>
               <ul className="space-y-3">
                 {[
@@ -197,9 +303,7 @@ export default function BlogPage() {
                     key={item}
                     className="flex items-start gap-2 text-white/70 text-sm"
                   >
-                    <ArrowRight
-                      className="w-4 h-4 mt-0.5 shrink-0 text-white/50"
-                    />
+                    <ArrowRight className="w-4 h-4 mt-0.5 shrink-0 text-white/50" />
                     {item}
                   </li>
                 ))}
@@ -209,9 +313,10 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* ── STATISTICS PREVIEW CARDS ────────────────────── */}
+      {/* ── STATISTICS PREVIEW CARDS ──────────────────────────────────────── */}
       <section className="py-20 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
+
           <div className="text-center mb-14">
             <h2
               className="text-3xl md:text-4xl font-bold mb-4"
@@ -227,228 +332,36 @@ export default function BlogPage() {
 
           {/* Category grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-
-            {/* By Country */}
-            <div
-              className="rounded-2xl p-6 border hover:-translate-y-1 transition-all duration-300"
-              style={{ borderColor: '#E2EEF7', backgroundColor: '#F0F6FB' }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#062850' }}
-                >
-                  <MapPin className="w-5 h-5 text-white" />
-                </div>
-                <h3
-                  className="font-bold text-lg"
-                  style={{ color: '#062850' }}
-                >
-                  Scholarships by Country
-                </h3>
-              </div>
-              <p className="text-gray-500 text-sm mb-4">
-                Explore how many scholarships are available in each destination
-                country — from the UK and Germany to Australia and South Korea.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'United Kingdom',
-                  'Germany',
-                  'Australia',
-                  'Canada',
-                  'United States',
-                  'South Korea',
-                  'Japan',
-                  'Netherlands',
-                ].map((country) => (
-                  <span
-                    key={country}
-                    className="text-xs px-3 py-1 rounded-full font-medium"
-                    style={{
-                      backgroundColor: '#E2EEF7',
-                      color: '#325E84',
-                    }}
+            {STAT_CATEGORIES.map((cat) => (
+              <div
+                key={cat.title}
+                className="rounded-2xl p-6 border hover:-translate-y-1 transition-all duration-300"
+                style={{ borderColor: '#E2EEF7', backgroundColor: '#F0F6FB' }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: cat.iconBg }}
                   >
-                    {country}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* By Field */}
-            <div
-              className="rounded-2xl p-6 border hover:-translate-y-1 transition-all duration-300"
-              style={{ borderColor: '#E2EEF7', backgroundColor: '#F0F6FB' }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#325E84' }}
-                >
-                  <BookOpen className="w-5 h-5 text-white" />
+                    {cat.icon}
+                  </div>
+                  <h3 className="font-bold text-lg" style={{ color: '#062850' }}>
+                    {cat.title}
+                  </h3>
                 </div>
-                <h3
-                  className="font-bold text-lg"
-                  style={{ color: '#062850' }}
-                >
-                  Scholarships by Field
-                </h3>
-              </div>
-              <p className="text-gray-500 text-sm mb-4">
-                Find scholarships available in your specific field — from STEM
-                and Medicine to Law, Business, Arts, and Agriculture.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'STEM',
-                  'Medicine',
-                  'Law',
-                  'Business',
-                  'Arts & Humanities',
-                  'Agriculture',
-                  'Peace Studies',
-                  'Computer Science',
-                ].map((field) => (
-                  <span
-                    key={field}
-                    className="text-xs px-3 py-1 rounded-full font-medium"
-                    style={{
-                      backgroundColor: '#E2EEF7',
-                      color: '#325E84',
-                    }}
-                  >
-                    {field}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* By Level */}
-            <div
-              className="rounded-2xl p-6 border hover:-translate-y-1 transition-all duration-300"
-              style={{ borderColor: '#E2EEF7', backgroundColor: '#F0F6FB' }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#497296' }}
-                >
-                  <GraduationCap className="w-5 h-5 text-white" />
+                <p className="text-gray-500 text-sm mb-4">{cat.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {cat.tags.map((tag) => (
+                    <Tag key={tag} label={tag} />
+                  ))}
                 </div>
-                <h3
-                  className="font-bold text-lg"
-                  style={{ color: '#062850' }}
-                >
-                  Scholarships by Degree Level
-                </h3>
               </div>
-              <p className="text-gray-500 text-sm mb-4">
-                Whether you're applying for an undergraduate degree, a
-                master's, a PhD, or a postdoctoral fellowship — see what's
-                available at your level.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'Undergraduate',
-                  "Master's",
-                  'PhD',
-                  'Postdoctoral',
-                  'LLM',
-                  'Fellowship',
-                  'Short Course',
-                ].map((level) => (
-                  <span
-                    key={level}
-                    className="text-xs px-3 py-1 rounded-full font-medium"
-                    style={{
-                      backgroundColor: '#E2EEF7',
-                      color: '#325E84',
-                    }}
-                  >
-                    {level}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* By Type */}
-            <div
-              className="rounded-2xl p-6 border hover:-translate-y-1 transition-all duration-300"
-              style={{ borderColor: '#E2EEF7', backgroundColor: '#F0F6FB' }}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: '#1D4469' }}
-                >
-                  <Layers className="w-5 h-5 text-white" />
-                </div>
-                <h3
-                  className="font-bold text-lg"
-                  style={{ color: '#062850' }}
-                >
-                  Scholarships by Type
-                </h3>
-              </div>
-              <p className="text-gray-500 text-sm mb-4">
-                Browse fully funded, partially funded, tuition-only, and
-                stipend-only scholarships — filter by exactly what covers
-                your needs.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  'Fully Funded',
-                  'Partially Funded',
-                  'Tuition Only',
-                  'Stipend Only',
-                  'No IELTS Required',
-                  'Women Only',
-                  'Government Scholarships',
-                ].map((type) => (
-                  <span
-                    key={type}
-                    className="text-xs px-3 py-1 rounded-full font-medium"
-                    style={{
-                      backgroundColor: '#E2EEF7',
-                      color: '#325E84',
-                    }}
-                  >
-                    {type}
-                  </span>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Stats row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              {
-                icon: <Globe className="w-5 h-5" />,
-                value: '50+',
-                label: 'Countries Covered',
-                color: '#062850',
-              },
-              {
-                icon: <BookOpen className="w-5 h-5" />,
-                value: '100+',
-                label: 'Fields of Study',
-                color: '#325E84',
-              },
-              {
-                icon: <BarChart3 className="w-5 h-5" />,
-                value: '500+',
-                label: 'Scholarships Tracked',
-                color: '#497296',
-              },
-              {
-                icon: <TrendingUp className="w-5 h-5" />,
-                value: 'Weekly',
-                label: 'Database Updates',
-                color: '#1D4469',
-              },
-            ].map((stat) => (
+            {STAT_CARDS.map((stat) => (
               <div
                 key={stat.label}
                 className="rounded-2xl p-5 text-center text-white hover:-translate-y-1 transition-all duration-300"
@@ -465,9 +378,10 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* ── WHAT TO EXPECT ──────────────────────────────── */}
+      {/* ── WHAT TO EXPECT ────────────────────────────────────────────────── */}
       <section className="py-20 px-6" style={{ backgroundColor: '#F0F6FB' }}>
         <div className="max-w-5xl mx-auto">
+
           <div className="text-center mb-14">
             <h2
               className="text-3xl md:text-4xl font-bold mb-4"
@@ -476,43 +390,12 @@ export default function BlogPage() {
               What to Expect When We Launch
             </h2>
             <p className="text-gray-500 text-lg max-w-xl mx-auto">
-              Here's a preview of the content categories we're building.
+              Here&apos;s a preview of the content categories we&apos;re building.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                category: 'Scholarship Guides',
-                color: '#062850',
-                articles: [
-                  'How to Find Fully Funded Scholarships in 2026',
-                  'Top 10 Countries for International Students',
-                  'How to Write a Scholarship SOP That Gets Noticed',
-                  'What Scholarship Committees Really Look For',
-                ],
-              },
-              {
-                category: 'Study Abroad Tips',
-                color: '#325E84',
-                articles: [
-                  'How to Choose the Right Country for Your Career Goals',
-                  'Study in Germany: A Complete Guide for Africans',
-                  'IELTS vs TOEFL — Which Should You Take?',
-                  'How to Get a Student Visa Step by Step',
-                ],
-              },
-              {
-                category: 'Career & Skills',
-                color: '#497296',
-                articles: [
-                  'Top Skills Employers Are Looking for in 2026',
-                  'How to Switch Careers Successfully',
-                  'Building a CV That Stands Out Internationally',
-                  'How Certifications Can Boost Your Salary',
-                ],
-              },
-            ].map((group) => (
+            {ARTICLE_GROUPS.map((group) => (
               <div
                 key={group.category}
                 className="rounded-2xl overflow-hidden shadow-sm hover:-translate-y-1 transition-all duration-300"
@@ -543,7 +426,7 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* ── FINAL CTA ────────────────────────────────────── */}
+      {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
       <section
         className="py-20 px-6 text-center"
         style={{ backgroundColor: '#062850' }}
@@ -557,40 +440,14 @@ export default function BlogPage() {
             and study abroad resources.
           </p>
 
-          {!submitted ? (
-            <form
-              onSubmit={handleNotify}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
-              <input
-                type="email"
-                placeholder="Your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:border-white/50 transition-all"
-              />
-              <Button
-                type="submit"
-                className="px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
-                style={{ backgroundColor: '#497296', color: '#fff' }}
-              >
-                <Bell className="w-4 h-4 mr-2" />
-                Notify Me
-              </Button>
-            </form>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-green-400 font-medium text-lg">
-              <CheckCircle className="w-5 h-5" />
-              You&apos;re on the list! We&apos;ll notify you when we launch.
-            </div>
-          )}
+          {/* ✅ Independent instance — has its own state, won't sync with hero form */}
+          <NotifyForm placeholder="Your email address" />
 
           <p className="text-white/30 text-sm mt-8 mb-6">
             Ready to find your scholarship now?
           </p>
 
-          <Link href="/scholarship">
+          <Link href="/scholarship/apply">
             <Button
               className="px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
               style={{ backgroundColor: '#497296', color: '#fff' }}

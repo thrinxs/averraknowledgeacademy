@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import AuthPageShell from '@/components/auth/AuthPageShell'
 import SignupForm from '@/components/auth/SignupForm'
 
@@ -17,7 +18,16 @@ export default function SignupPage() {
       footerLinkText="Log in"
       footerLinkHref="/auth/login"
     >
-      <SignupForm />
+      <Suspense fallback={
+        <div className="flex items-center justify-center py-12">
+          <div
+            className="w-8 h-8 rounded-full border-2 animate-spin"
+            style={{ borderColor: '#062850', borderTopColor: 'transparent' }}
+          />
+        </div>
+      }>
+        <SignupForm />
+      </Suspense>
     </AuthPageShell>
   )
 }

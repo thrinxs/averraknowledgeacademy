@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import AuthPageShell from '@/components/auth/AuthPageShell'
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm'
 
@@ -17,7 +18,16 @@ export default function ResetPasswordPage() {
       footerLinkText="Login"
       footerLinkHref="/auth/login"
     >
-      <ResetPasswordForm />
+      <Suspense fallback={
+        <div className="flex items-center justify-center py-12">
+          <div
+            className="w-8 h-8 rounded-full border-2 animate-spin"
+            style={{ borderColor: '#062850', borderTopColor: 'transparent' }}
+          />
+        </div>
+      }>
+        <ResetPasswordForm />
+      </Suspense>
     </AuthPageShell>
   )
 }

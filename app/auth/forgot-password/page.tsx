@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import AuthPageShell from '@/components/auth/AuthPageShell'
 import ForgotPasswordForm from '@/components/auth/ForgotPasswordForm'
 
@@ -17,7 +18,16 @@ export default function ForgotPasswordPage() {
       footerLinkText="Log in"
       footerLinkHref="/auth/login"
     >
-      <ForgotPasswordForm />
+      <Suspense fallback={
+        <div className="flex items-center justify-center py-12">
+          <div
+            className="w-8 h-8 rounded-full border-2 animate-spin"
+            style={{ borderColor: '#062850', borderTopColor: 'transparent' }}
+          />
+        </div>
+      }>
+        <ForgotPasswordForm />
+      </Suspense>
     </AuthPageShell>
   )
 }
