@@ -1,8 +1,9 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(
-  process.env.RESEND_API_KEY
-)
+// ✅ Lazy — only runs when a function is called, NOT at build time
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 const FROM_NOREPLY =
   'Averra Knowledge Academy <noreply@averraknowledgeacademy.com>'
@@ -12,9 +13,7 @@ const FROM_SUPPORT =
   'Averra Support <support@averraknowledgeacademy.com>'
 
 // Base email template
-function baseTemplate(
-  content: string
-): string {
+function baseTemplate(content: string): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -73,10 +72,7 @@ function baseTemplate(
 }
 
 // Button helper
-function emailButton(
-  text: string,
-  url: string
-): string {
+function emailButton(text: string, url: string): string {
   return `
     <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto;">
       <tr>
@@ -102,8 +98,7 @@ export async function sendPaymentConfirmedEmail({
   packageName: string
   amount: number
 }) {
-  const formattedAmount =
-    '₦' + amount.toLocaleString('en-NG')
+  const formattedAmount = '₦' + amount.toLocaleString('en-NG')
 
   const content = `
     <h2 style="color:#062850; font-size:20px; margin:0 0 16px 0; font-weight:bold;">
@@ -138,11 +133,10 @@ export async function sendPaymentConfirmedEmail({
     </p>
   `
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM_NOREPLY,
     to,
-    subject:
-      'Payment Confirmed — Your Matches Are Being Prepared',
+    subject: 'Payment Confirmed — Your Matches Are Being Prepared',
     html: baseTemplate(content),
   })
 }
@@ -191,11 +185,10 @@ export async function sendMatchesReadyEmail({
     </p>
   `
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM_SCHOLARSHIP,
     to,
-    subject:
-      'Your 5 Scholarship Matches Are Ready — Review Them Now',
+    subject: 'Your 5 Scholarship Matches Are Ready — Review Them Now',
     html: baseTemplate(content),
   })
 }
@@ -258,11 +251,10 @@ export async function sendMatchesVerifiedEmail({
     </p>
   `
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM_SCHOLARSHIP,
     to,
-    subject:
-      'Your Scholarship Matches Are Verified — Start Your Applications',
+    subject: 'Your Scholarship Matches Are Verified — Start Your Applications',
     html: baseTemplate(content),
   })
 }
@@ -313,7 +305,7 @@ export async function sendMessageReplyEmail({
     </p>
   `
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM_SUPPORT,
     to,
     subject: `Re: ${subject} — Averra Knowledge Academy`,
@@ -363,11 +355,10 @@ export async function sendMatchEditedEmail({
     </p>
   `
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM_SCHOLARSHIP,
     to,
-    subject:
-      'Your Scholarship Match Has Been Updated — Averra Knowledge Academy',
+    subject: 'Your Scholarship Match Has Been Updated — Averra Knowledge Academy',
     html: baseTemplate(content),
   })
 }
