@@ -100,10 +100,10 @@ const audiences = [
 ]
 
 const stats = [
-  { value: '50+',    label: 'Countries Covered',        icon: Globe   },
-  { value: '1,000+', label: 'Universities Tracked',     icon: Trophy  },
-  { value: '500+',   label: 'Course Fields Eligible',   icon: BookOpen },
-  { value: '100%',   label: 'Manual Verification',      icon: Star    },
+  { value: '50+',    label: 'Countries Covered',      icon: Globe    },
+  { value: '1,000+', label: 'Universities Tracked',   icon: Trophy   },
+  { value: '500+',   label: 'Course Fields Eligible', icon: BookOpen },
+  { value: '100%',   label: 'Manual Verification',    icon: Star     },
 ]
 
 const whyAverra = [
@@ -166,7 +166,6 @@ export default function HomePage() {
           background: `linear-gradient(135deg, ${BRAND} 0%, ${MID} 50%, #325E84 100%)`,
         }}
       >
-        {/* Background blobs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
             className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full opacity-10 animate-pulse"
@@ -181,25 +180,28 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white border border-white/20 bg-white/10 backdrop-blur-sm mb-8">
-            <Star className="w-4 h-4" />
+            {/* ── DUOTONE: Star icon ── */}
+            <Star
+              className="w-4 h-4"
+              strokeWidth={1.5}
+              fill="rgba(255,255,255,0.25)"
+              stroke="white"
+            />
             Africa's Complete Academic Success Platform
           </div>
 
-          {/* Headline */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
             The Right Knowledge.
             <br />
             <span style={{ color: '#97C3E0' }}>The Right Future.</span>
           </h1>
 
-          {/* Subtext */}
           <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto mb-12 leading-relaxed">
             Averra Knowledge Academy combines scholarship matching, curriculum-based
             learning, career training, and digital skills — everything you need to
             succeed academically and professionally.
           </p>
 
-          {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/scholarship">
               <Button
@@ -208,7 +210,10 @@ export default function HomePage() {
                 style={{ color: BRAND }}
               >
                 Find a Scholarship
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight
+                  className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                  strokeWidth={2}
+                />
               </Button>
             </Link>
             <Link href="/academy">
@@ -218,7 +223,13 @@ export default function HomePage() {
                 className="border-2 border-white/50 text-white bg-transparent text-base px-8 py-6 rounded-xl backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white hover:scale-105"
               >
                 Start Learning
-                <BookOpen className="ml-2 h-5 w-5" />
+                {/* ── DUOTONE: BookOpen icon ── */}
+                <BookOpen
+                  className="ml-2 h-5 w-5"
+                  strokeWidth={1.5}
+                  fill="rgba(255,255,255,0.15)"
+                  stroke="white"
+                />
               </Button>
             </Link>
           </div>
@@ -230,7 +241,13 @@ export default function HomePage() {
                 key={stat.label}
                 className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"
               >
-                <stat.icon className="w-6 h-6 text-blue-300 mx-auto mb-3" />
+                {/* ── DUOTONE: stat icons ── */}
+                <stat.icon
+                  className="w-6 h-6 mx-auto mb-3"
+                  strokeWidth={1.5}
+                  fill="rgba(147,195,224,0.3)"
+                  stroke="#97C3E0"
+                />
                 <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
                 <div className="text-blue-200 text-xs">{stat.label}</div>
               </div>
@@ -238,7 +255,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Bottom wave */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path
@@ -287,11 +303,17 @@ export default function HomePage() {
                     {service.badge}
                   </span>
                 )}
+                {/* ── DUOTONE: service icons ── */}
                 <div
                   className="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
                   style={{ backgroundColor: `${service.color}15` }}
                 >
-                  <service.icon className="w-7 h-7" style={{ color: service.color }} />
+                  <service.icon
+                    className="w-7 h-7"
+                    strokeWidth={1.5}
+                    fill={`${service.color}25`}
+                    style={{ color: service.color }}
+                  />
                 </div>
                 <h3
                   className="text-xl font-bold mb-3"
@@ -308,7 +330,7 @@ export default function HomePage() {
                     style={{ backgroundColor: service.color }}
                   >
                     {service.cta}
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-4 w-4" strokeWidth={2} />
                   </Button>
                 </Link>
               </div>
@@ -325,7 +347,13 @@ export default function HomePage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-white mb-4"
               style={{ backgroundColor: LIGHT }}
             >
-              <Users className="w-4 h-4" />
+              {/* ── DUOTONE: Users icon ── */}
+              <Users
+                className="w-4 h-4"
+                strokeWidth={1.5}
+                fill="rgba(255,255,255,0.25)"
+                stroke="white"
+              />
               Who We Serve
             </div>
             <h2
@@ -389,7 +417,7 @@ export default function HomePage() {
                   style={{ backgroundColor: BRAND }}
                 >
                   Get Started Today
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <ArrowRight className="ml-2 h-5 w-5" strokeWidth={2} />
                 </Button>
               </Link>
             </div>
@@ -400,11 +428,17 @@ export default function HomePage() {
                   key={point}
                   className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:shadow-md"
                 >
+                  {/* ── DUOTONE: CheckCircle icon ── */}
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: `${BRAND}15` }}
                   >
-                    <CheckCircle className="w-5 h-5" style={{ color: BRAND }} />
+                    <CheckCircle
+                      className="w-5 h-5"
+                      strokeWidth={1.5}
+                      fill={`${BRAND}20`}
+                      style={{ color: BRAND }}
+                    />
                   </div>
                   <span className="text-gray-700 font-medium text-sm">{point}</span>
                 </div>
@@ -483,8 +517,11 @@ export default function HomePage() {
                 <ul className="space-y-3 flex-1 mb-8">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm">
+                      {/* ── DUOTONE: CheckCircle in pricing ── */}
                       <CheckCircle
                         className="w-4 h-4 flex-shrink-0"
+                        strokeWidth={1.5}
+                        fill={plan.featured ? 'rgba(151,195,224,0.3)' : `${BRAND}20`}
                         style={{ color: plan.featured ? '#97C3E0' : BRAND }}
                       />
                       <span style={{ color: plan.featured ? '#e0f0ff' : '#374151' }}>
@@ -534,7 +571,10 @@ export default function HomePage() {
                 style={{ color: BRAND }}
               >
                 Find a Scholarship
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight
+                  className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1"
+                  strokeWidth={2}
+                />
               </Button>
             </Link>
             <Link href="/academy">
@@ -544,7 +584,12 @@ export default function HomePage() {
                 className="border-2 border-white/50 text-white bg-transparent text-base px-8 py-6 rounded-xl transition-all duration-300 hover:bg-white/10 hover:border-white hover:scale-105"
               >
                 Start Learning
-                <BookOpen className="ml-2 h-5 w-5" />
+                <BookOpen
+                  className="ml-2 h-5 w-5"
+                  strokeWidth={1.5}
+                  fill="rgba(255,255,255,0.15)"
+                  stroke="white"
+                />
               </Button>
             </Link>
           </div>
