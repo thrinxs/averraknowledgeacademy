@@ -10,17 +10,18 @@ import ScholarshipFinalCTA from '@/components/scholarship/ScholarshipFinalCTA'
 export const metadata: Metadata = {
   title: 'Scholarship Matching Service',
   description:
-    'Get matched with fully funded scholarships worldwide. ' +
-    'Averra Knowledge Academy researches, matches, verifies, ' +
-    'and prepares you to win scholarships across 50+ countries.',
+    'Get matched with 5 fully funded scholarships tailored to your academic profile. Averra Knowledge Academy researches, matches, verifies, and prepares you to apply across 50+ countries worldwide.',
   keywords: [
-    'scholarship matching',
-    'scholarship search',
+    'scholarship matching Nigeria',
     'fully funded scholarships',
+    'scholarship search Africa',
     'study abroad scholarships',
-    'scholarship search Nigeria',
-    'find scholarships',
+    'scholarship for Nigerians',
+    'international scholarships Africa',
     'scholarship application support',
+    'find scholarships Nigeria',
+    'scholarship matching service',
+    'funded scholarships 2025',
   ],
   alternates: {
     canonical: 'https://www.averraknowledgeacademy.com/scholarship',
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Scholarship Matching Service | Averra Knowledge Academy',
     description:
-      'Get matched with fully funded scholarships across 50+ countries. Personally researched and verified for your profile.',
+      'Get matched with 5 fully funded scholarships tailored to your profile across 50+ countries. Personally researched and verified by our team.',
     url: 'https://www.averraknowledgeacademy.com/scholarship',
     type: 'website',
   },
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Scholarship Matching Service | Averra Knowledge Academy',
     description:
-      'Get matched with fully funded scholarships across 50+ countries. Personally researched and verified for your profile.',
+      'Get matched with 5 fully funded scholarships tailored to your profile across 50+ countries. Personally researched and verified by our team.',
   },
 }
 
