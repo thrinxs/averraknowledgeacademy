@@ -10,16 +10,59 @@ const geist = Geist({
 })
 
 export const metadata: Metadata = {
-  title: 'Averra Knowledge Academy — Find Your Scholarship',
+  metadataBase: new URL('https://www.averraknowledgeacademy.com'),
+  title: {
+    default: 'Averra Knowledge Academy | The Right Knowledge',
+    template: '%s | Averra Knowledge Academy',
+  },
   description:
-    'We research, match and prepare you for fully funded ' +
-    'scholarships to study abroad. Expert scholarship ' +
-    'matching and application support.',
-  keywords:
-    'scholarships, study abroad, fully funded scholarships, ' +
-    'Nigeria scholarships, international scholarships',
-  icons: {
-    icon: '/favicon.svg',
+    'Africa’s complete academic success platform. Scholarship matching, online learning, digital skills, career training, and structured academic support.',
+  keywords: [
+    'online learning platform',
+    'scholarship matching',
+    'scholarship search',
+    'fully funded scholarships',
+    'study abroad',
+    'digital skills training',
+    'career training',
+    'academic support',
+    'Nigeria edtech',
+    'Averra Knowledge Academy',
+  ],
+  authors: [{ name: 'Averra Knowledge Academy' }],
+  creator: 'Averra Knowledge Academy',
+  publisher: 'Averra Knowledge Academy',
+  applicationName: 'Averra Knowledge Academy',
+  alternates: {
+    canonical: 'https://www.averraknowledgeacademy.com',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_NG',
+    url: 'https://www.averraknowledgeacademy.com',
+    siteName: 'Averra Knowledge Academy',
+    title: 'Averra Knowledge Academy | The Right Knowledge',
+    description:
+      'Africa’s complete academic success platform. Scholarship matching, online learning, digital skills, and career training.',
+    images: [
+      {
+        url: '/opengraph-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Averra Knowledge Academy',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Averra Knowledge Academy | The Right Knowledge',
+    description:
+      'Africa’s complete academic success platform. Scholarship matching, online learning, digital skills, and career training.',
+    images: ['/opengraph-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
