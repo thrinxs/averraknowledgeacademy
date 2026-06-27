@@ -52,13 +52,13 @@ export default function Footer() {
     {
       heading: 'Company',
       links: [
-        { label: 'About Us',         href: '/about' },
-        { label: 'Averra Academy',   href: '/academy' },
-        { label: 'Blog',             href: '/blog' },
-        { label: 'Earn With Us',     href: '/earn' },
-        { label: 'Contact Us',       href: '/about#contact' },
-        { label: 'Privacy Policy',   href: '/privacy' },
-        { label: 'Terms of Service', href: '/terms' },
+        { label: 'About Us',         href: '/about'    },
+        { label: 'Averra Academy',   href: '/academy'  },
+        { label: 'Blog',             href: '/blog'     },
+        { label: 'Earn With Us',     href: '/earn'     },
+        { label: 'Contact Us',       href: '/contact'  },
+        { label: 'Privacy Policy',   href: '/privacy'  },
+        { label: 'Terms of Service', href: '/terms'    },
       ],
     },
   ]

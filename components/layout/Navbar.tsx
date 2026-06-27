@@ -51,12 +51,12 @@ export default function Navbar() {
 
   const navItems = [
     { label: 'Scholarships', href: '/scholarship' },
-    { label: 'Skills',       href: '/skills' },
-    { label: 'Careers',      href: '/careers' },
-    { label: 'Academy',      href: '/academy' },
-    { label: 'Earn With Us', href: '/earn' },
-    { label: 'Blog',         href: '/blog' },
-    { label: 'About',        href: '/about' },
+    { label: 'Academy',      href: '/academy'     },
+    { label: 'Skills',       href: '/skills'       },
+    { label: 'Careers',      href: '/careers'      },
+    { label: 'Earn With Us', href: '/earn'         },
+    { label: 'Blog',         href: '/blog'         },
+    { label: 'Contact',      href: '/contact'      },
   ]
 
   const loginHref = `/auth/login?from=${encodeURIComponent(pathname)}`
