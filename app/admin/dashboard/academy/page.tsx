@@ -26,7 +26,7 @@ export default async function AdminAcademyPage() {
       status,
       notes,
       created_at,
-      profiles!parent_id (
+      profiles (
         id,
         full_name,
         email,
@@ -180,14 +180,11 @@ export default async function AdminAcademyPage() {
       {/* Enrollments List */}
       <div className="space-y-6">
         {(enrollments || []).map((enrollment) => {
-          const parent = enrollment.profiles as {
-            id: string
-            full_name: string
-            email: string
-            phone: string
-            whatsapp: string
-            country: string
-          } | null
+          const parent = (
+            Array.isArray(enrollment.profiles)
+              ? enrollment.profiles[0]
+              : enrollment.profiles
+          ) as { id: string; full_name: string; email: string; phone: string; whatsapp: string; country: string } | null
 
           const enrollmentChildren =
             childrenByEnrollment[enrollment.id] || []

@@ -123,7 +123,7 @@ export default async function AdminOverviewPage() {
         billing_period,
         payment_status,
         created_at,
-        profiles!parent_id (
+        profiles (
           full_name,
           email
         )
@@ -535,9 +535,11 @@ export default async function AdminOverviewPage() {
           <div className="space-y-3">
             {(recentAcademyEnrollments || []).map(
               (enrollment) => {
-                const profile = enrollment.profiles as
-                  | { full_name: string; email: string }
-                  | null
+                const profile = (
+                  Array.isArray(enrollment.profiles)
+                    ? enrollment.profiles[0]
+                    : enrollment.profiles
+                ) as { full_name: string; email: string } | null
 
                 return (
                   <div
