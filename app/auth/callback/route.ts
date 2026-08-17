@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
-import { getDashboardRouteByRole } from '@/utils/auth'
-import type { EmailOtpType } from '@supabase/supabase-js'
+import { createSupabaseServerClient } from
+  '@/lib/supabase-server'
+import { getDashboardRouteByRole } from
+  '@/utils/auth'
+import type { EmailOtpType } from
+  '@supabase/supabase-js'
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
@@ -15,6 +18,7 @@ export async function GET(request: NextRequest) {
   const supabase = await createSupabaseServerClient()
 
   try {
+    // ── Exchange code or verify OTP ──────────────
     if (code) {
       await supabase.auth.exchangeCodeForSession(code)
     } else if (tokenHash && type) {
@@ -24,6 +28,7 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    // ── Handle password reset ────────────────────
     if (
       type === 'recovery' ||
       next === '/auth/reset-password'
@@ -33,6 +38,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // ── Get the verified user ────────────────────
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -46,11 +52,34 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // ── Mark email as verified in profiles ───────
     await supabase
       .from('profiles')
       .update({ email_verified: true })
       .eq('id', user.id)
 
+    // ── Check if this is an Academy enrollment ───
+    // If the user has a pending academy enrollment,
+    // redirect them to the payment page instead
+    // of the dashboard
+    const { data: academyEnrollment } = await supabase
+      .from('academy_enrollments')
+      .select('id, payment_status')
+      .eq('parent_id', user.id)
+      .eq('payment_status', 'unpaid')
+      .maybeSingle()
+
+    if (academyEnrollment) {
+      // Academy parent — go to payment instructions
+      return NextResponse.redirect(
+        new URL(
+          '/academy/enroll/payment',
+          request.url
+        )
+      )
+    }
+
+    // ── Regular user — go to their dashboard ─────
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -65,9 +94,13 @@ export async function GET(request: NextRequest) {
     redirectUrl.searchParams.set('verified', 'true')
 
     return NextResponse.redirect(redirectUrl)
+
   } catch {
     return NextResponse.redirect(
-      new URL('/auth/login?error=auth_callback_failed', request.url)
+      new URL(
+        '/auth/login?error=auth_callback_failed',
+        request.url
+      )
     )
   }
 }

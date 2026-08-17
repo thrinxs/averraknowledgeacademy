@@ -15,6 +15,9 @@ import {
   Menu,
   X,
   ChevronRight,
+  BookOpen,
+  Briefcase,
+  School,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -24,6 +27,18 @@ interface SidebarProps {
   avatarUrl: string | null
 }
 
+type NavSection = {
+  title: string
+  items: NavItem[]
+}
+
+type NavItem = {
+  label: string
+  href: string
+  icon: React.ElementType
+  badge: number
+}
+
 export default function DashboardSidebar({
   fullName,
   email,
@@ -31,27 +46,22 @@ export default function DashboardSidebar({
 }: SidebarProps) {
   const [mounted, setMounted] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [unreadNotifs, setUnreadNotifs] =
-    useState(0)
-  const [unreadMessages, setUnreadMessages] =
-    useState(0)
+  const [unreadNotifs, setUnreadNotifs] = useState(0)
+  const [unreadMessages, setUnreadMessages] = useState(0)
+  const [hasAcademy, setHasAcademy] = useState(false)
+  const [hasScholarship, setHasScholarship] = useState(false)
 
   const pathname = usePathname()
   const router = useRouter()
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
-  // Fetch unread counts
   useEffect(() => {
     if (!mounted) return
 
-    const fetchCounts = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-
+    const fetchData = async () => {
+      const { data: { user } } =
+        await supabase.auth.getUser()
       if (!user) return
 
       // Unread notifications
@@ -60,7 +70,6 @@ export default function DashboardSidebar({
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('is_read', false)
-
       setUnreadNotifs(notifCount || 0)
 
       // Unread messages
@@ -69,36 +78,40 @@ export default function DashboardSidebar({
         .select('*', { count: 'exact', head: true })
         .eq('receiver_id', user.id)
         .eq('is_read', false)
-
       setUnreadMessages(msgCount || 0)
+
+      // Check if user has academy enrollment
+      const { data: academyData } = await supabase
+        .from('academy_enrollments')
+        .select('id')
+        .eq('parent_id', user.id)
+        .maybeSingle()
+      setHasAcademy(!!academyData)
+
+      // Check if user has scholarship application
+      const { data: scholarshipData } = await supabase
+        .from('scholarship_preferences')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      setHasScholarship(!!scholarshipData)
     }
 
-    fetchCounts()
+    fetchData()
 
-    // Subscribe to real-time notification changes
-    const notifSubscription = supabase
-      .channel('notifications-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications',
-        },
-        () => {
-          fetchCounts()
-        }
-      )
+    const notifSub = supabase
+      .channel('dashboard-notifs')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'notifications',
+      }, fetchData)
       .subscribe()
 
-    return () => {
-      notifSubscription.unsubscribe()
-    }
+    return () => { notifSub.unsubscribe() }
   }, [mounted])
 
-  useEffect(() => {
-    setMobileOpen(false)
-  }, [pathname])
+  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -114,54 +127,153 @@ export default function DashboardSidebar({
 
   if (!mounted) return null
 
-  const navItems = [
+  const navSections: NavSection[] = [
     {
-      label: 'Dashboard',
-      href: '/dashboard',
-      icon: LayoutDashboard,
-      badge: 0,
+      title: '',
+      items: [
+        {
+          label: 'Dashboard',
+          href: '/dashboard',
+          icon: LayoutDashboard,
+          badge: 0,
+        },
+      ],
     },
     {
-      label: 'My Scholarship',
-      href: '/dashboard/scholarship',
-      icon: GraduationCap,
-      badge: 0,
+      title: 'Scholarships',
+      items: [
+        {
+          label: 'My Application',
+          href: '/dashboard/scholarship',
+          icon: GraduationCap,
+          badge: 0,
+        },
+        {
+          label: 'My Matches',
+          href: '/dashboard/matches',
+          icon: Trophy,
+          badge: 0,
+        },
+      ],
     },
     {
-      label: 'My Matches',
-      href: '/dashboard/matches',
-      icon: Trophy,
-      badge: 0,
+      title: 'Academy',
+      items: [
+        {
+          label: 'My Enrollment',
+          href: '/dashboard/academy',
+          icon: School,
+          badge: 0,
+        },
+      ],
     },
     {
-      label: 'Notifications',
-      href: '/dashboard/notifications',
-      icon: Bell,
-      badge: unreadNotifs,
+      title: 'Skills',
+      items: [
+        {
+          label: 'My Courses',
+          href: '/dashboard/courses',
+          icon: BookOpen,
+          badge: 0,
+        },
+      ],
     },
     {
-      label: 'Messages',
-      href: '/dashboard/messages',
-      icon: MessageSquare,
-      badge: unreadMessages,
+      title: 'Careers',
+      items: [
+        {
+          label: 'My Programme',
+          href: '/dashboard/careers',
+          icon: Briefcase,
+          badge: 0,
+        },
+      ],
     },
     {
-      label: 'Profile',
-      href: '/dashboard/profile',
-      icon: User,
-      badge: 0,
+      title: 'Account',
+      items: [
+        {
+          label: 'Notifications',
+          href: '/dashboard/notifications',
+          icon: Bell,
+          badge: unreadNotifs,
+        },
+        {
+          label: 'Messages',
+          href: '/dashboard/messages',
+          icon: MessageSquare,
+          badge: unreadMessages,
+        },
+        {
+          label: 'Profile',
+          href: '/dashboard/profile',
+          icon: User,
+          badge: 0,
+        },
+      ],
     },
   ]
+
+  const renderNavItem = (item: NavItem) => {
+    const isActive =
+      pathname === item.href ||
+      (item.href !== '/dashboard' &&
+        pathname.startsWith(item.href))
+
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={`flex items-center gap-3
+        px-4 py-2.5 rounded-xl text-sm
+        font-medium transition-all duration-200
+        group ${isActive
+          ? 'text-white'
+          : 'text-blue-200 hover:text-white'
+        }`}
+        style={{
+          backgroundColor: isActive
+            ? '#1D4469'
+            : 'transparent',
+          borderLeft: isActive
+            ? '3px solid #97C3E0'
+            : '3px solid transparent',
+        }}
+      >
+        <item.icon
+          className={`w-5 h-5 flex-shrink-0
+          ${isActive
+            ? 'text-white'
+            : 'text-blue-300 group-hover:text-white'
+          }`}
+        />
+        <span className="flex-1">{item.label}</span>
+        {item.badge > 0 && (
+          <span
+            className="flex items-center
+            justify-center w-5 h-5 rounded-full
+            text-xs font-bold text-white flex-shrink-0"
+            style={{ backgroundColor: '#DC2626' }}
+          >
+            {item.badge > 9 ? '9+' : item.badge}
+          </span>
+        )}
+        {isActive && item.badge === 0 && (
+          <ChevronRight
+            className="w-4 h-4 ml-auto
+            text-blue-300"
+          />
+        )}
+      </Link>
+    )
+  }
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
 
       {/* Logo */}
       <div className="p-6 pb-4">
-        <Link
-          href="/"
-          className="flex items-center gap-3"
-        >
+        <Link href="/" className="flex items-center gap-3">
           <Image
             src="/footer-logo.png"
             alt="Averra Knowledge Academy"
@@ -184,7 +296,7 @@ export default function DashboardSidebar({
 
       {/* User Info */}
       <div
-        className="mx-4 mb-6 p-3 rounded-xl"
+        className="mx-4 mb-4 p-3 rounded-xl"
         style={{ backgroundColor: '#1D4469' }}
       >
         <div className="flex items-center gap-3">
@@ -212,81 +324,33 @@ export default function DashboardSidebar({
             text-white truncate">
               {fullName}
             </p>
-            <p className="text-xs text-blue-300
-            truncate">
+            <p className="text-xs text-blue-300 truncate">
               {email}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Nav Items */}
-      <nav className="flex-1 px-3 space-y-1">
-        {navItems.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== '/dashboard' &&
-              pathname.startsWith(item.href))
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3
-              px-4 py-3 rounded-xl text-sm
-              font-medium transition-all duration-200
-              group ${
-                isActive
-                  ? 'text-white'
-                  : 'text-blue-200 hover:text-white'
-              }`}
-              style={{
-                backgroundColor: isActive
-                  ? '#1D4469'
-                  : 'transparent',
-                borderLeft: isActive
-                  ? '3px solid #97C3E0'
-                  : '3px solid transparent',
-              }}
-            >
-              <item.icon
-                className={`w-5 h-5 flex-shrink-0
-                ${isActive
-                  ? 'text-white'
-                  : 'text-blue-300 group-hover:text-white'
-                }`}
-              />
-              <span className="flex-1">
-                {item.label}
-              </span>
-
-              {/* Unread badge */}
-              {item.badge > 0 && (
-                <span
-                  className="flex items-center
-                  justify-center w-5 h-5 rounded-full
-                  text-xs font-bold text-white
-                  flex-shrink-0"
-                  style={{
-                    backgroundColor: '#DC2626',
-                  }}
-                >
-                  {item.badge > 9 ? '9+' : item.badge}
-                </span>
-              )}
-
-              {isActive && item.badge === 0 && (
-                <ChevronRight
-                  className="w-4 h-4 ml-auto
-                  text-blue-300"
-                />
-              )}
-            </Link>
-          )
-        })}
+      {/* Nav Sections */}
+      <nav className="flex-1 px-3 space-y-1
+      overflow-y-auto pb-4">
+        {navSections.map((section) => (
+          <div key={section.title || 'main'}>
+            {section.title && (
+              <p
+                className="px-4 pt-4 pb-1.5 text-xs
+                font-bold uppercase tracking-wider"
+                style={{ color: '#497296' }}
+              >
+                {section.title}
+              </p>
+            )}
+            {section.items.map(renderNavItem)}
+          </div>
+        ))}
       </nav>
 
-      {/* Bottom Section */}
+      {/* Bottom */}
       <div
         className="p-4 border-t"
         style={{ borderColor: '#1D4469' }}
@@ -298,11 +362,9 @@ export default function DashboardSidebar({
           text-blue-200 hover:text-white
           transition-colors mb-2"
         >
-          <ChevronRight className="w-4 h-4
-          rotate-180" />
+          <ChevronRight className="w-4 h-4 rotate-180" />
           Back to Website
         </a>
-
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3
@@ -337,10 +399,7 @@ export default function DashboardSidebar({
         justify-between px-4 h-16"
         style={{ backgroundColor: '#062850' }}
       >
-        <Link
-          href="/"
-          className="flex items-center gap-2"
-        >
+        <Link href="/" className="flex items-center gap-2">
           <Image
             src="/footer-logo.png"
             alt="Averra"
@@ -348,50 +407,40 @@ export default function DashboardSidebar({
             height={32}
             className="object-contain"
           />
-          <span className="text-sm font-bold
-          text-white">
+          <span className="text-sm font-bold text-white">
             Averra
           </span>
         </Link>
-
         <div className="flex items-center gap-3">
-          {/* Mobile notification badge */}
           {unreadNotifs > 0 && (
             <Link href="/dashboard/notifications">
               <div className="relative">
-                <Bell className="w-5 h-5
-                text-blue-200" />
+                <Bell className="w-5 h-5 text-blue-200" />
                 <span
                   className="absolute -top-1 -right-1
-                  w-4 h-4 rounded-full text-xs
-                  font-bold text-white flex items-center
+                  w-4 h-4 rounded-full text-xs font-bold
+                  text-white flex items-center
                   justify-center"
                   style={{ backgroundColor: '#DC2626' }}
                 >
-                  {unreadNotifs > 9
-                    ? '9+'
-                    : unreadNotifs}
+                  {unreadNotifs > 9 ? '9+' : unreadNotifs}
                 </span>
               </div>
             </Link>
           )}
-
           <button
-            onClick={() =>
-              setMobileOpen(!mobileOpen)
-            }
+            onClick={() => setMobileOpen(!mobileOpen)}
             className="text-white p-2"
           >
-            {mobileOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {mobileOpen
+              ? <X className="w-6 h-6" />
+              : <Menu className="w-6 h-6" />
+            }
           </button>
         </div>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile Overlay */}
       {mobileOpen && (
         <>
           <div
@@ -409,7 +458,6 @@ export default function DashboardSidebar({
         </>
       )}
 
-      {/* Mobile spacer */}
       <div className="lg:hidden h-20" />
     </>
   )
