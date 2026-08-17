@@ -1,11 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import {
   GraduationCap,
-  CreditCard,
-  Trophy,
   Bell,
   MessageSquare,
   ArrowRight,
@@ -13,6 +10,9 @@ import {
   CheckCircle,
   AlertCircle,
   User,
+  School,
+  BookOpen,
+  Briefcase,
 } from 'lucide-react'
 
 interface Props {
@@ -23,27 +23,6 @@ interface Props {
   msgCount: number
 }
 
-const packageInfo: Record<
-  string,
-  { name: string; price: string; color: string }
-> = {
-  basic: {
-    name: 'Basic',
-    price: '₦30,000',
-    color: '#497296',
-  },
-  standard: {
-    name: 'Standard',
-    price: '₦50,000',
-    color: '#325E84',
-  },
-  premium: {
-    name: 'Premium',
-    price: '₦150,000',
-    color: '#062850',
-  },
-}
-
 export default function DashboardHome({
   profile,
   preferences,
@@ -51,28 +30,11 @@ export default function DashboardHome({
   notifCount,
   msgCount,
 }: Props) {
-  const pkg = preferences?.selected_package
-    ? packageInfo[preferences.selected_package]
-    : null
+  const firstName =
+    profile?.full_name?.split(' ')[0] || 'there'
 
-  const paymentStatus =
-    preferences?.payment_status || 'unpaid'
-
-  const hasMatches = matchCount > 0
-
-  // Determine dashboard state
-  const getStatus = () => {
-    if (!preferences) return 'no_application'
-    if (paymentStatus === 'unpaid') return 'awaiting_payment'
-    if (paymentStatus === 'pending') return 'payment_pending'
-    if (paymentStatus === 'paid' && !hasMatches)
-      return 'matching'
-    if (paymentStatus === 'paid' && hasMatches)
-      return 'matches_ready'
-    return 'no_application'
-  }
-
-  const status = getStatus()
+  const scholarshipStatus =
+    preferences?.payment_status || null
 
   return (
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
@@ -80,248 +42,21 @@ export default function DashboardHome({
       {/* Welcome */}
       <div className="mb-8">
         <h1
-          className="text-2xl md:text-3xl font-bold
-          mb-2"
+          className="text-2xl md:text-3xl font-bold mb-2"
           style={{ color: '#062850' }}
         >
-          Welcome back, {profile?.full_name || 'Student'}
+          Welcome back, {firstName} 👋
         </h1>
         <p className="text-gray-500 text-sm">
-          Here is an overview of your scholarship
-          journey with Averra Knowledge Academy.
+          Here is an overview of your Averra Knowledge
+          Academy services and activity.
         </p>
       </div>
 
-      {/* Status Banner */}
-      {status === 'awaiting_payment' && pkg && (
-        <div
-          className="rounded-2xl p-6 mb-8 border-2
-          flex flex-col sm:flex-row items-start
-          sm:items-center justify-between gap-4"
-          style={{
-            backgroundColor: '#FFFBEB',
-            borderColor: '#FCD34D',
-          }}
-        >
-          <div className="flex items-start gap-4">
-            <div
-              className="w-12 h-12 rounded-xl flex
-              items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: '#FEF3C7' }}
-            >
-              <CreditCard
-                className="w-6 h-6"
-                style={{ color: '#D97706' }}
-              />
-            </div>
-            <div>
-              <p
-                className="font-bold text-base mb-1"
-                style={{ color: '#92400E' }}
-              >
-                Payment Required
-              </p>
-              <p
-                className="text-sm"
-                style={{ color: '#92400E' }}
-              >
-                You selected the{' '}
-                <span className="font-semibold">
-                  {pkg.name}
-                </span>{' '}
-                package
-                {preferences?.final_price
-                  ? ` (₦${Number(
-                      preferences.final_price
-                    ).toLocaleString()})`
-                  : ` (${pkg.price})`}
-                . Complete your payment to receive
-                your 5 scholarship matches.
-              </p>
-            </div>
-          </div>
-          <Link href="/dashboard/scholarship">
-            <Button
-              className="text-white font-semibold
-              px-6 py-5 rounded-xl transition-all
-              duration-300 hover:opacity-90
-              hover:scale-105 whitespace-nowrap"
-              style={{ backgroundColor: '#062850' }}
-            >
-              Pay Now
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-        </div>
-      )}
-
-      {status === 'matching' && (
-        <div
-          className="rounded-2xl p-6 mb-8 border-2
-          flex items-start gap-4"
-          style={{
-            backgroundColor: '#EFF6FF',
-            borderColor: '#93C5FD',
-          }}
-        >
-          <div
-            className="w-12 h-12 rounded-xl flex
-            items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: '#DBEAFE' }}
-          >
-            <Clock
-              className="w-6 h-6 animate-spin"
-              style={{
-                color: '#2563EB',
-                animationDuration: '3s',
-              }}
-            />
-          </div>
-          <div>
-            <p
-              className="font-bold text-base mb-1"
-              style={{ color: '#1E40AF' }}
-            >
-              Matching in Progress
-            </p>
-            <p
-              className="text-sm"
-              style={{ color: '#1E40AF' }}
-            >
-              Your payment has been confirmed. Our
-              system is finding the best scholarships
-              for your profile. Matches are usually
-              delivered within 1 hour.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {status === 'matches_ready' && (
-        <div
-          className="rounded-2xl p-6 mb-8 border-2
-          flex flex-col sm:flex-row items-start
-          sm:items-center justify-between gap-4"
-          style={{
-            backgroundColor: '#F0FDF4',
-            borderColor: '#86EFAC',
-          }}
-        >
-          <div className="flex items-start gap-4">
-            <div
-              className="w-12 h-12 rounded-xl flex
-              items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: '#DCFCE7' }}
-            >
-              <CheckCircle
-                className="w-6 h-6"
-                style={{ color: '#16A34A' }}
-              />
-            </div>
-            <div>
-              <p
-                className="font-bold text-base mb-1"
-                style={{ color: '#166534' }}
-              >
-                Your Matches Are Ready!
-              </p>
-              <p
-                className="text-sm"
-                style={{ color: '#166534' }}
-              >
-                You have {matchCount} scholarship
-                {matchCount === 1 ? '' : 's'} matched
-                to your profile. View them now and
-                start your applications.
-              </p>
-            </div>
-          </div>
-          <Link href="/dashboard/matches">
-            <Button
-              className="text-white font-semibold
-              px-6 py-5 rounded-xl transition-all
-              duration-300 hover:opacity-90
-              hover:scale-105 whitespace-nowrap"
-              style={{ backgroundColor: '#16A34A' }}
-            >
-              View Matches
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-        </div>
-      )}
-
-      {status === 'no_application' && (
-        <div
-          className="rounded-2xl p-6 mb-8 border-2
-          flex flex-col sm:flex-row items-start
-          sm:items-center justify-between gap-4"
-          style={{
-            backgroundColor: '#F0F6FB',
-            borderColor: '#97C3E0',
-          }}
-        >
-          <div className="flex items-start gap-4">
-            <div
-              className="w-12 h-12 rounded-xl flex
-              items-center justify-center flex-shrink-0"
-              style={{ backgroundColor: '#E0EEF7' }}
-            >
-              <AlertCircle
-                className="w-6 h-6"
-                style={{ color: '#497296' }}
-              />
-            </div>
-            <div>
-              <p
-                className="font-bold text-base mb-1"
-                style={{ color: '#062850' }}
-              >
-                No Scholarship Application Yet
-              </p>
-              <p
-                className="text-sm"
-                style={{ color: '#325E84' }}
-              >
-                You have not started a scholarship
-                application. Fill the form to get
-                matched with fully funded scholarships.
-              </p>
-            </div>
-          </div>
-          <Link href="/scholarship/apply">
-            <Button
-              className="text-white font-semibold
-              px-6 py-5 rounded-xl transition-all
-              duration-300 hover:opacity-90
-              hover:scale-105 whitespace-nowrap"
-              style={{ backgroundColor: '#062850' }}
-            >
-              Start Application
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-        </div>
-      )}
-
-      {/* Quick Stats Grid */}
+      {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4
       gap-4 mb-8">
         {[
-          {
-            icon: GraduationCap,
-            label: 'Package',
-            value: pkg?.name || 'None',
-            color: pkg?.color || '#497296',
-            href: '/dashboard/scholarship',
-          },
-          {
-            icon: Trophy,
-            label: 'Matches',
-            value: matchCount.toString(),
-            color: '#16A34A',
-            href: '/dashboard/matches',
-          },
           {
             icon: Bell,
             label: 'Notifications',
@@ -335,6 +70,20 @@ export default function DashboardHome({
             value: msgCount.toString(),
             color: '#2563EB',
             href: '/dashboard/messages',
+          },
+          {
+            icon: GraduationCap,
+            label: 'Scholarship Matches',
+            value: matchCount.toString(),
+            color: '#16A34A',
+            href: '/dashboard/matches',
+          },
+          {
+            icon: User,
+            label: 'My Profile',
+            value: '→',
+            color: '#497296',
+            href: '/dashboard/profile',
           },
         ].map((stat) => (
           <Link
@@ -378,49 +127,18 @@ export default function DashboardHome({
         ))}
       </div>
 
-      {/* Quick Actions */}
+      {/* Services Grid */}
+      <h2
+        className="font-bold text-lg mb-4"
+        style={{ color: '#062850' }}
+      >
+        My Services
+      </h2>
+
       <div className="grid grid-cols-1 md:grid-cols-2
-      gap-4">
+      gap-4 mb-8">
 
-        {/* Profile Card */}
-        <Link
-          href="/dashboard/profile"
-          className="bg-white rounded-2xl p-6
-          border border-gray-100 transition-all
-          duration-300 hover:shadow-lg
-          hover:-translate-y-1 group"
-        >
-          <div className="flex items-center gap-4">
-            <div
-              className="w-12 h-12 rounded-xl flex
-              items-center justify-center"
-              style={{ backgroundColor: '#F0F6FB' }}
-            >
-              <User
-                className="w-6 h-6"
-                style={{ color: '#497296' }}
-              />
-            </div>
-            <div className="flex-1">
-              <p
-                className="font-semibold mb-0.5"
-                style={{ color: '#062850' }}
-              >
-                My Profile
-              </p>
-              <p className="text-xs text-gray-500">
-                View and edit your personal information
-              </p>
-            </div>
-            <ArrowRight
-              className="w-5 h-5 text-gray-300
-              group-hover:text-gray-500
-              transition-colors"
-            />
-          </div>
-        </Link>
-
-        {/* Scholarship Info Card */}
+        {/* Scholarships */}
         <Link
           href="/dashboard/scholarship"
           className="bg-white rounded-2xl p-6
@@ -428,38 +146,398 @@ export default function DashboardHome({
           duration-300 hover:shadow-lg
           hover:-translate-y-1 group"
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             <div
               className="w-12 h-12 rounded-xl flex
-              items-center justify-center"
-              style={{ backgroundColor: '#F0F6FB' }}
+              items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: '#EBF4FF' }}
             >
               <GraduationCap
                 className="w-6 h-6"
-                style={{ color: '#497296' }}
+                style={{ color: '#325E84' }}
               />
             </div>
             <div className="flex-1">
-              <p
-                className="font-semibold mb-0.5"
-                style={{ color: '#062850' }}
-              >
-                My Scholarship
+              <div className="flex items-center
+              justify-between mb-1">
+                <p
+                  className="font-bold"
+                  style={{ color: '#062850' }}
+                >
+                  Scholarships
+                </p>
+                {scholarshipStatus === 'paid' && (
+                  <span
+                    className="text-xs px-2 py-0.5
+                    rounded-full font-medium text-white"
+                    style={{ backgroundColor: '#16A34A' }}
+                  >
+                    Active
+                  </span>
+                )}
+                {scholarshipStatus === 'unpaid' && (
+                  <span
+                    className="text-xs px-2 py-0.5
+                    rounded-full font-medium"
+                    style={{
+                      backgroundColor: '#FEF3C7',
+                      color: '#D97706',
+                    }}
+                  >
+                    Payment Pending
+                  </span>
+                )}
+                {!scholarshipStatus && (
+                  <span
+                    className="text-xs px-2 py-0.5
+                    rounded-full font-medium"
+                    style={{
+                      backgroundColor: '#F0F6FB',
+                      color: '#497296',
+                    }}
+                  >
+                    Not Started
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mb-2">
+                {scholarshipStatus === 'paid'
+                  ? `${matchCount} scholarship${matchCount !== 1 ? 's' : ''} matched to your profile`
+                  : scholarshipStatus === 'unpaid'
+                  ? 'Complete your payment to receive your matches'
+                  : 'Get matched with fully funded scholarships worldwide'
+                }
               </p>
-              <p className="text-xs text-gray-500">
-                View your package, payment status,
-                and preferences
+              <p
+                className="text-xs font-semibold
+                flex items-center gap-1"
+                style={{ color: '#325E84' }}
+              >
+                {scholarshipStatus === 'paid'
+                  ? 'View my matches'
+                  : scholarshipStatus === 'unpaid'
+                  ? 'Complete payment'
+                  : 'Start application'
+                }
+                <ArrowRight className="w-3 h-3
+                group-hover:translate-x-1
+                transition-transform" />
               </p>
             </div>
-            <ArrowRight
-              className="w-5 h-5 text-gray-300
-              group-hover:text-gray-500
-              transition-colors"
-            />
+          </div>
+        </Link>
+
+        {/* Academy */}
+        <Link
+          href="/dashboard/academy"
+          className="bg-white rounded-2xl p-6
+          border border-gray-100 transition-all
+          duration-300 hover:shadow-lg
+          hover:-translate-y-1 group"
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="w-12 h-12 rounded-xl flex
+              items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: '#ECFDF5' }}
+            >
+              <School
+                className="w-6 h-6"
+                style={{ color: '#10B981' }}
+              />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center
+              justify-between mb-1">
+                <p
+                  className="font-bold"
+                  style={{ color: '#062850' }}
+                >
+                  Academy
+                </p>
+                <span
+                  className="text-xs px-2 py-0.5
+                  rounded-full font-medium"
+                  style={{
+                    backgroundColor: '#F0F6FB',
+                    color: '#497296',
+                  }}
+                >
+                  View
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mb-2">
+                Averra Super Curriculum — personalised
+                academic tutoring for your learner
+              </p>
+              <p
+                className="text-xs font-semibold
+                flex items-center gap-1"
+                style={{ color: '#10B981' }}
+              >
+                View my enrolment
+                <ArrowRight className="w-3 h-3
+                group-hover:translate-x-1
+                transition-transform" />
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        {/* Skills */}
+        <Link
+          href="/dashboard/courses"
+          className="bg-white rounded-2xl p-6
+          border border-gray-100 transition-all
+          duration-300 hover:shadow-lg
+          hover:-translate-y-1 group"
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="w-12 h-12 rounded-xl flex
+              items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: '#FEF3C7' }}
+            >
+              <BookOpen
+                className="w-6 h-6"
+                style={{ color: '#D97706' }}
+              />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center
+              justify-between mb-1">
+                <p
+                  className="font-bold"
+                  style={{ color: '#062850' }}
+                >
+                  Skills & Courses
+                </p>
+                <span
+                  className="text-xs px-2 py-0.5
+                  rounded-full font-medium"
+                  style={{
+                    backgroundColor: '#FEF3C7',
+                    color: '#D97706',
+                  }}
+                >
+                  Coming Soon
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mb-2">
+                Typing, computer skills, website
+                building and more practical courses
+              </p>
+              <p
+                className="text-xs font-semibold
+                flex items-center gap-1"
+                style={{ color: '#D97706' }}
+              >
+                Browse courses
+                <ArrowRight className="w-3 h-3
+                group-hover:translate-x-1
+                transition-transform" />
+              </p>
+            </div>
+          </div>
+        </Link>
+
+        {/* Careers */}
+        <Link
+          href="/dashboard/careers"
+          className="bg-white rounded-2xl p-6
+          border border-gray-100 transition-all
+          duration-300 hover:shadow-lg
+          hover:-translate-y-1 group"
+        >
+          <div className="flex items-start gap-4">
+            <div
+              className="w-12 h-12 rounded-xl flex
+              items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: '#F3E8FF' }}
+            >
+              <Briefcase
+                className="w-6 h-6"
+                style={{ color: '#7C3AED' }}
+              />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center
+              justify-between mb-1">
+                <p
+                  className="font-bold"
+                  style={{ color: '#062850' }}
+                >
+                  Careers
+                </p>
+                <span
+                  className="text-xs px-2 py-0.5
+                  rounded-full font-medium"
+                  style={{
+                    backgroundColor: '#F3E8FF',
+                    color: '#7C3AED',
+                  }}
+                >
+                  Coming Soon
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mb-2">
+                Career test, industrial training and
+                career switch programmes
+              </p>
+              <p
+                className="text-xs font-semibold
+                flex items-center gap-1"
+                style={{ color: '#7C3AED' }}
+              >
+                View programmes
+                <ArrowRight className="w-3 h-3
+                group-hover:translate-x-1
+                transition-transform" />
+              </p>
+            </div>
           </div>
         </Link>
 
       </div>
+
+      {/* Scholarship Status Banner */}
+      {scholarshipStatus === 'unpaid' && preferences && (
+        <div
+          className="rounded-2xl p-5 border-2
+          flex flex-col sm:flex-row items-start
+          sm:items-center justify-between gap-4"
+          style={{
+            backgroundColor: '#FFFBEB',
+            borderColor: '#FCD34D',
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <Clock
+              className="w-5 h-5 flex-shrink-0 mt-0.5"
+              style={{ color: '#D97706' }}
+            />
+            <div>
+              <p
+                className="font-bold text-sm"
+                style={{ color: '#92400E' }}
+              >
+                Scholarship Payment Pending
+              </p>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: '#92400E' }}
+              >
+                Complete your payment to receive your
+                5 scholarship matches.
+              </p>
+            </div>
+          </div>
+          <Link href="/dashboard/scholarship">
+            <button
+              className="px-5 py-2.5 rounded-xl
+              text-sm font-bold text-white
+              transition-all hover:opacity-90
+              whitespace-nowrap"
+              style={{ backgroundColor: '#062850' }}
+            >
+              Pay Now →
+            </button>
+          </Link>
+        </div>
+      )}
+
+      {scholarshipStatus === 'paid' && matchCount > 0 && (
+        <div
+          className="rounded-2xl p-5 border-2
+          flex flex-col sm:flex-row items-start
+          sm:items-center justify-between gap-4"
+          style={{
+            backgroundColor: '#F0FDF4',
+            borderColor: '#86EFAC',
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <CheckCircle
+              className="w-5 h-5 flex-shrink-0 mt-0.5"
+              style={{ color: '#16A34A' }}
+            />
+            <div>
+              <p
+                className="font-bold text-sm"
+                style={{ color: '#166534' }}
+              >
+                Your Scholarship Matches Are Ready!
+              </p>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: '#166534' }}
+              >
+                {matchCount} scholarship
+                {matchCount !== 1 ? 's' : ''} matched
+                to your profile. View and start
+                your applications.
+              </p>
+            </div>
+          </div>
+          <Link href="/dashboard/matches">
+            <button
+              className="px-5 py-2.5 rounded-xl
+              text-sm font-bold text-white
+              transition-all hover:opacity-90
+              whitespace-nowrap"
+              style={{ backgroundColor: '#16A34A' }}
+            >
+              View Matches →
+            </button>
+          </Link>
+        </div>
+      )}
+
+      {!scholarshipStatus && (
+        <div
+          className="rounded-2xl p-5 border-2
+          flex flex-col sm:flex-row items-start
+          sm:items-center justify-between gap-4"
+          style={{
+            backgroundColor: '#F0F6FB',
+            borderColor: '#97C3E0',
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle
+              className="w-5 h-5 flex-shrink-0 mt-0.5"
+              style={{ color: '#497296' }}
+            />
+            <div>
+              <p
+                className="font-bold text-sm"
+                style={{ color: '#062850' }}
+              >
+                Start Your Scholarship Journey
+              </p>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: '#325E84' }}
+              >
+                Get matched with fully funded
+                scholarships in 30+ countries
+                worldwide.
+              </p>
+            </div>
+          </div>
+          <Link href="/scholarship/apply">
+            <button
+              className="px-5 py-2.5 rounded-xl
+              text-sm font-bold text-white
+              transition-all hover:opacity-90
+              whitespace-nowrap"
+              style={{ backgroundColor: '#062850' }}
+            >
+              Start Application →
+            </button>
+          </Link>
+        </div>
+      )}
 
     </div>
   )

@@ -1,12 +1,35 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-
-export const metadata = {
-  title: 'Payment Instructions — Averra Academy',
-}
+import { Copy, Check } from 'lucide-react'
 
 export default function AcademyPaymentPage() {
+  const [mounted, setMounted] = useState(false)
+  const [reference, setReference] = useState('AVERRA-ACAD')
+  const [copiedField, setCopiedField] = useState<string | null>(null)
+
+  useEffect(() => { setMounted(true) }, [])
+
+  function copyToClipboard(value: string, field: string) {
+    navigator.clipboard.writeText(value)
+    setCopiedField(field)
+    setTimeout(() => setCopiedField(null), 2000)
+  }
+
+  if (!mounted) return null
+
+  const bankDetails = [
+    { label: 'Account Name', value: 'Baridubari Joshua Joe-Amos' },
+    { label: 'Account Number', value: '35651420' },
+    { label: 'Sort Code', value: '04-13-07' },
+    { label: 'IBAN', value: 'GB68CLJU0413073565420' },
+    { label: 'Bank', value: 'Clear Junction Limited' },
+    { label: 'Payment Method', value: 'Faster Payment (FPS)' },
+  ]
+
   return (
     <div
       className="min-h-screen py-12 px-4"
@@ -26,8 +49,9 @@ export default function AcademyPaymentPage() {
             />
           </Link>
           <div
-            className="w-16 h-16 rounded-full flex items-center
-            justify-center mx-auto mb-4 text-2xl"
+            className="w-16 h-16 rounded-full flex
+            items-center justify-center mx-auto mb-4
+            text-2xl"
             style={{ backgroundColor: '#062850' }}
           >
             🎉
@@ -36,11 +60,11 @@ export default function AcademyPaymentPage() {
             className="text-2xl md:text-3xl font-bold mb-2"
             style={{ color: '#062850' }}
           >
-            Account Created Successfully!
+            Enrolment Registered!
           </h1>
           <p className="text-gray-500">
-            One last step — complete your payment to
-            activate your enrollment.
+            Complete your payment to activate your
+            enrolment and begin classes.
           </p>
         </div>
 
@@ -57,7 +81,7 @@ export default function AcademyPaymentPage() {
               💳 Payment Instructions
             </h2>
             <p className="text-blue-300 text-sm mt-0.5">
-              Bank transfer — secure and simple
+              Bank transfer via Faster Payment (FPS)
             </p>
           </div>
 
@@ -68,18 +92,18 @@ export default function AcademyPaymentPage() {
               {[
                 {
                   step: '1',
-                  title: 'Transfer Your Payment',
-                  desc: 'Make a bank transfer to the account details below.',
+                  title: 'Make Your Transfer',
+                  desc: 'Send your payment to the bank details below using Faster Payment (FPS).',
                 },
                 {
                   step: '2',
                   title: 'Use Your Reference',
-                  desc: 'Include your reference so we can identify your payment instantly.',
+                  desc: 'Enter your personalised reference below so we can identify your payment instantly.',
                 },
                 {
                   step: '3',
                   title: 'Send Proof of Payment',
-                  desc: 'Send your payment receipt/screenshot to our WhatsApp or email.',
+                  desc: 'Send your payment screenshot or receipt to our WhatsApp or email.',
                 },
                 {
                   step: '4',
@@ -100,12 +124,13 @@ export default function AcademyPaymentPage() {
                     {item.step}
                   </div>
                   <div>
-                    <p className="font-semibold text-sm"
-                    style={{ color: '#062850' }}>
+                    <p
+                      className="font-semibold text-sm"
+                      style={{ color: '#062850' }}
+                    >
                       {item.title}
                     </p>
-                    <p className="text-xs text-gray-500
-                    mt-0.5">
+                    <p className="text-xs text-gray-500 mt-0.5">
                       {item.desc}
                     </p>
                   </div>
@@ -121,71 +146,115 @@ export default function AcademyPaymentPage() {
                 backgroundColor: '#F0F6FB',
               }}
             >
-              <h3 className="font-bold mb-4"
-              style={{ color: '#062850' }}>
+              <h3
+                className="font-bold mb-4"
+                style={{ color: '#062850' }}
+              >
                 🏦 Bank Account Details (GBP)
               </h3>
 
               <div className="space-y-3">
-                {[
-                  {
-                    label: 'Account Name',
-                    value: 'Baridubari Joshua Joe-Amos',
-                  },
-                  {
-                    label: 'Account Number',
-                    value: '35651420',
-                  },
-                  {
-                    label: 'Sort Code',
-                    value: '04-13-07',
-                  },
-                  {
-                    label: 'IBAN',
-                    value: 'GB68CLJU0413073565420',
-                  },
-                  {
-                    label: 'Bank',
-                    value: 'Grey (UK Account)',
-                  },
-                ].map((detail) => (
+                {bankDetails.map((detail) => (
                   <div
                     key={detail.label}
-                    className="flex items-center justify-between
-                    bg-white rounded-xl px-4 py-3 border
-                    border-gray-100"
+                    className="flex items-center
+                    justify-between bg-white rounded-xl
+                    px-4 py-3 border border-gray-100
+                    group"
                   >
-                    <span className="text-sm text-gray-500">
-                      {detail.label}
-                    </span>
-                    <span className="font-bold text-sm
-                    font-mono"
-                    style={{ color: '#062850' }}>
-                      {detail.value}
-                    </span>
+                    <div>
+                      <p className="text-xs text-gray-500">
+                        {detail.label}
+                      </p>
+                      <p
+                        className="font-bold text-sm
+                        font-mono mt-0.5"
+                        style={{ color: '#062850' }}
+                      >
+                        {detail.value}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() =>
+                        copyToClipboard(
+                          detail.value,
+                          detail.label
+                        )
+                      }
+                      className="p-2 rounded-lg
+                      transition-all hover:bg-gray-100
+                      opacity-0 group-hover:opacity-100"
+                    >
+                      {copiedField === detail.label
+                        ? <Check className="w-4 h-4 text-green-500" />
+                        : <Copy className="w-4 h-4 text-gray-400" />
+                      }
+                    </button>
                   </div>
                 ))}
               </div>
 
-              {/* Reference */}
+              {/* Reference — Editable */}
               <div
-                className="mt-4 p-4 rounded-xl text-center
-                border-2 border-dashed"
+                className="mt-4 p-4 rounded-xl border-2
+                border-dashed"
                 style={{ borderColor: '#497296' }}
               >
-                <p className="text-xs text-gray-500 mb-1">
+                <p className="text-xs text-gray-500 mb-2">
                   Your Payment Reference
+                  <span className="ml-1 text-[#497296]">
+                    (you can personalise this)
+                  </span>
                 </p>
-                <p
-                  className="font-bold text-lg font-mono"
-                  style={{ color: '#062850' }}
-                >
-                  AVERRA-ACAD
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={reference}
+                    onChange={(e) =>
+                      setReference(e.target.value)
+                    }
+                    className="flex-1 font-bold font-mono
+                    text-center px-3 py-2 rounded-lg
+                    border border-gray-200
+                    focus:outline-none focus:ring-2
+                    focus:ring-[#497296]"
+                    style={{ color: '#062850' }}
+                  />
+                  <button
+                    onClick={() =>
+                      copyToClipboard(reference, 'ref')
+                    }
+                    className="p-2 rounded-lg border
+                    border-gray-200 hover:bg-gray-100
+                    transition-all"
+                  >
+                    {copiedField === 'ref'
+                      ? <Check className="w-4 h-4 text-green-500" />
+                      : <Copy className="w-4 h-4 text-gray-400" />
+                    }
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400 mt-2
+                text-center">
+                  Include this exact reference with
+                  your transfer
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Include this exact reference with your
-                  transfer
-                </p>
+              </div>
+
+              {/* FPS Note */}
+              <div
+                className="mt-4 p-3 rounded-xl text-sm
+                text-center font-semibold"
+                style={{
+                  backgroundColor: '#EBF4FF',
+                  color: '#062850',
+                }}
+              >
+                ⚡ Please send via{' '}
+                <span style={{ color: '#497296' }}>
+                  Faster Payment (FPS)
+                </span>{' '}
+                for instant transfer
               </div>
             </div>
 
@@ -194,8 +263,10 @@ export default function AcademyPaymentPage() {
               className="rounded-xl p-5"
               style={{ backgroundColor: '#F0F6FB' }}
             >
-              <h3 className="font-bold text-sm mb-3"
-              style={{ color: '#062850' }}>
+              <h3
+                className="font-bold text-sm mb-3"
+                style={{ color: '#062850' }}
+              >
                 📤 After Payment — Send Proof To:
               </h3>
               <div className="space-y-2">
@@ -203,8 +274,8 @@ export default function AcademyPaymentPage() {
                   href="https://wa.me/2349033440966"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-3
-                  bg-green-50 rounded-xl border
+                  className="flex items-center gap-3
+                  p-3 bg-green-50 rounded-xl border
                   border-green-100 hover:bg-green-100
                   transition-colors"
                 >
@@ -221,8 +292,8 @@ export default function AcademyPaymentPage() {
                 </a>
                 <a
                   href="mailto:info@averraknowledgeacademy.com"
-                  className="flex items-center gap-3 p-3
-                  bg-blue-50 rounded-xl border
+                  className="flex items-center gap-3
+                  p-3 bg-blue-50 rounded-xl border
                   border-blue-100 hover:bg-blue-100
                   transition-colors"
                 >
@@ -240,20 +311,20 @@ export default function AcademyPaymentPage() {
               </div>
             </div>
 
-            {/* What Happens Next */}
-            <div
-              className="rounded-xl p-5 border border-gray-100"
-            >
-              <h3 className="font-bold text-sm mb-3"
-              style={{ color: '#062850' }}>
-                ✅ What Happens After We Confirm Payment:
+            {/* What happens next */}
+            <div className="rounded-xl p-5 border
+            border-gray-100">
+              <h3
+                className="font-bold text-sm mb-3"
+                style={{ color: '#062850' }}
+              >
+                ✅ What Happens After We Confirm:
               </h3>
               <ul className="space-y-2">
                 {[
                   'Your dashboard will be fully activated',
-                  'You will receive a welcome email',
                   'Our team will contact you within 24 hours to confirm your timetable',
-                  'Your child\'s baseline assessment will be scheduled',
+                  'Your learner\'s baseline assessment will be scheduled',
                   'Classes begin within 48 hours of timetable confirmation',
                 ].map((item, i) => (
                   <li
@@ -262,7 +333,9 @@ export default function AcademyPaymentPage() {
                     text-sm text-gray-600"
                   >
                     <span className="text-green-500
-                    font-bold flex-shrink-0">✓</span>
+                    font-bold flex-shrink-0">
+                      ✓
+                    </span>
                     {item}
                   </li>
                 ))}
@@ -274,21 +347,27 @@ export default function AcademyPaymentPage() {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link href="/dashboard" className="flex-1">
+          <a
+            href="https://wa.me/2349033440966"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1"
+          >
+            <Button
+              className="w-full text-white font-semibold
+              py-3 rounded-xl"
+              style={{ backgroundColor: '#16A34A' }}
+            >
+              💬 Send Payment Proof
+            </Button>
+          </a>
+          <Link href="/dashboard/academy" className="flex-1">
             <Button
               className="w-full text-white font-semibold
               py-3 rounded-xl"
               style={{ backgroundColor: '#062850' }}
             >
               Go to My Dashboard →
-            </Button>
-          </Link>
-          <Link href="/academy" className="flex-1">
-            <Button
-              variant="outline"
-              className="w-full py-3 rounded-xl"
-            >
-              Back to Academy Page
             </Button>
           </Link>
         </div>
