@@ -77,17 +77,7 @@ export default function LoginForm() {
         })
 
       if (signInError) {
-        if (
-          signInError.message
-            .toLowerCase()
-            .includes('email not confirmed')
-        ) {
-          setError(
-            'Your email has not been verified yet. Please check your inbox.'
-          )
-        } else {
-          setError(signInError.message)
-        }
+        setError(signInError.message)
         return
       }
 
