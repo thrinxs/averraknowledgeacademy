@@ -91,8 +91,8 @@ export default function LoginForm() {
       await new Promise(resolve => setTimeout(resolve, 500))
 
       const res = await fetch('/api/auth/role')
-      const data = await res.json()
-      const role = data.role || 'student'
+      const roleData = await res.json()
+      const role = roleData.role || 'student'
 
       const routes: Record<string, string> = {
         admin: '/admin/dashboard',
