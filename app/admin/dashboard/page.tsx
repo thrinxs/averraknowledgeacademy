@@ -1,5 +1,12 @@
-import { createSupabaseServerClient } from
-  '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
+
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 import {
   Users,
   CreditCard,
@@ -15,7 +22,7 @@ import {
 import Link from 'next/link'
 
 export default async function AdminOverviewPage() {
-  const supabase = await createSupabaseServerClient()
+  const supabase = getAdminClient()
 
   // ── Scholarship stats ─────────────────────────
   const { count: totalUsers } = await supabase

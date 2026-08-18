@@ -1,5 +1,12 @@
-import { createSupabaseServerClient } from
-  '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
+
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 import Link from 'next/link'
 import {
   CheckCircle,
@@ -12,7 +19,7 @@ import {
 } from 'lucide-react'
 
 export default async function AdminAcademyPage() {
-  const supabase = await createSupabaseServerClient()
+  const supabase = getAdminClient()
 
   const { data: enrollments } = await supabase
     .from('academy_enrollments')

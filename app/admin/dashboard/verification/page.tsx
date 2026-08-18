@@ -1,11 +1,17 @@
-import { createSupabaseServerClient } from
-  '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
+
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 import MatchVerification from
   '@/components/admin/MatchVerification'
 
 export default async function VerificationPage() {
-  const supabase =
-    await createSupabaseServerClient()
+  const supabase = getAdminClient()
 
   const { data: matches } = await supabase
     .from('scholarship_matches')

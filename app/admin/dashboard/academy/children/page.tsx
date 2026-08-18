@@ -1,8 +1,15 @@
-import { createSupabaseServerClient } from
-  '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
+
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export default async function AdminChildrenPage() {
-  const supabase = await createSupabaseServerClient()
+  const supabase = getAdminClient()
   const { data: children } = await supabase
     .from('academy_children')
     .select('*')
