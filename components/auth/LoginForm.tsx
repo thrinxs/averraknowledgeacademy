@@ -87,16 +87,7 @@ export default function LoginForm() {
         return
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      const route = getDashboardRouteByRole(
-        profile?.role
-      )
-      window.location.href = route
+      window.location.href = '/dashboard'
     } catch {
       setError(
         'Something went wrong. Please try again.'
