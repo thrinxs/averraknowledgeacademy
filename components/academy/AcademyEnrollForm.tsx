@@ -988,7 +988,7 @@ export default function AcademyEnrollForm() {
                   </h3>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">
                     {formData.applicant_type === 'parent'
-                      ? 'Your learner will follow the Averra Super Curriculum — a fusion of seven of the world's best education systems.'
+                      ? 'Your learner will follow the Averra Super Curriculum — a fusion of seven of the world&apos;s best education systems.'
                       : 'You will follow the Averra Super Curriculum — personalised to your academic profile.'}
                   </p>
 
