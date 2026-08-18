@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase'
-import { getDashboardRouteByRole } from '@/utils/auth'
+
 import RedirectOverlay from './RedirectOverlay'
 
 const inputClass = `w-full px-4 py-3 rounded-xl border
