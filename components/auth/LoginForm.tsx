@@ -96,8 +96,7 @@ export default function LoginForm() {
       const route = getDashboardRouteByRole(
         profile?.role
       )
-      setRedirectRoute(route)
-      setShowRedirect(true)
+      window.location.href = route
     } catch {
       setError(
         'Something went wrong. Please try again.'
