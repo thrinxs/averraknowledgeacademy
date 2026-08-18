@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from
   '@/lib/supabase-server'
+import { createClient } from '@supabase/supabase-js'
 import AdminSidebar from
   '@/components/admin/AdminSidebar'
 
@@ -20,7 +21,13 @@ export default async function AdminDashboardLayout({
     redirect('/auth/login')
   }
 
-  const { data: profile } = await supabase
+  const adminClient = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('full_name, email, role, avatar_url')
     .eq('id', user.id)
