@@ -87,13 +87,10 @@ export default function LoginForm() {
         return
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle()
+      // Use server-side API to get role reliably
+      const res = await fetch('/api/auth/role')
+      const { role } = await res.json()
 
-      const role = profile?.role || 'student'
       const routes: Record<string, string> = {
         admin: '/admin/dashboard',
         staff: '/staff/dashboard',
