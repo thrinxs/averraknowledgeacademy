@@ -40,14 +40,15 @@ const BILLING_MAP: Record<string, string> = {
 export default async function ManageEnrollmentPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const supabase = getAdminClient()
 
   const { data: enrollment } = await supabase
     .from('academy_enrollments')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', id)
     .maybeSingle()
 
   if (!enrollment) notFound()
