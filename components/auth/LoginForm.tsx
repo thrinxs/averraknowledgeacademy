@@ -87,21 +87,7 @@ export default function LoginForm() {
         return
       }
 
-      // Wait for session cookie to be set
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      const res = await fetch('/api/auth/role')
-      const roleData = await res.json()
-      const role = roleData.role || 'student'
-
-      const routes: Record<string, string> = {
-        admin: '/admin/dashboard',
-        staff: '/staff/dashboard',
-        affiliate: '/affiliate/dashboard',
-        trainer: '/trainer/dashboard',
-        student: '/dashboard',
-      }
-      window.location.href = routes[role] || '/dashboard'
+      window.location.href = '/dashboard'
     } catch {
       setError(
         'Something went wrong. Please try again.'
