@@ -18,6 +18,20 @@ import {
   Mail,
 } from 'lucide-react'
 
+const SUBJECT_MAP: Record<string, string> = {
+  ENG: 'English Language', MATH: 'Mathematics',
+  SCI: 'Science', COMP: 'Computing',
+  HIST: 'History', GEO: 'Geography',
+  ART: 'Creative Arts', MUS: 'Music',
+  PE: 'Physical Education',
+  NHC: 'Nigerian History & Culture',
+  REL: 'Religious Studies', BTECH: 'Basic Technology',
+  BIO: 'Biology', CHEM: 'Chemistry',
+  PHY: 'Physics', ECON: 'Economics',
+  GOV: 'Government / Politics',
+  ENGLIT: 'English Literature',
+}
+
 export default async function AdminAcademyPage() {
   const supabase = getAdminClient()
 
