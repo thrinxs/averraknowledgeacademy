@@ -87,9 +87,12 @@ export default function LoginForm() {
         return
       }
 
-      // Use server-side API to get role reliably
+      // Wait for session cookie to be set
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       const res = await fetch('/api/auth/role')
-      const { role } = await res.json()
+      const data = await res.json()
+      const role = data.role || 'student'
 
       const routes: Record<string, string> = {
         admin: '/admin/dashboard',
