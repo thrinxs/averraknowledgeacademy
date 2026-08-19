@@ -50,8 +50,10 @@ type Unit = {
 }
 
 type CurriculumData = {
-  units: Unit[]
+  topics: Unit[]
   competencies?: { by_end_of_year?: string[] }
+  source_contributions?: Record<string, string[]>
+  unique_additions?: { added_beyond?: string[] }
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -81,6 +83,7 @@ export default function CurriculumExplorer() {
   const [loadingSubjects, setLoadingSubjects] = useState(false)
   const [loadingCurriculum, setLoadingCurriculum] = useState(false)
   const [activeTab, setActiveTab] = useState<'local' | 'averra'>('local')
+  const [equivalentYear, setEquivalentYear] = useState<string>('')
 
   useEffect(() => {
     async function fetchCountries() {
@@ -120,16 +123,28 @@ export default function CurriculumExplorer() {
     setSelectedSubject(null)
     setLocalCurriculum(null)
     setAverraCurriculum(null)
+    setEquivalentYear('')
     setLoadingSubjects(true)
     async function fetchSubjects() {
-      const { data } = await supabase
-        .from('country_subjects')
-        .select('subject_code,subject_name,subject_type,averra_teaches,averra_subject_code')
-        .eq('country_code', selectedCountry)
-        .eq('year_group_code', selectedYear)
-        .order('subject_type')
-        .order('subject_name')
-      if (data) setSubjects(data)
+      const [subjectsRes, yearRes] = await Promise.all([
+        supabase
+          .from('country_subjects')
+          .select('subject_code,subject_name,subject_type,averra_teaches,averra_subject_code')
+          .eq('country_code', selectedCountry)
+          .eq('year_group_code', selectedYear)
+          .order('subject_type')
+          .order('subject_name'),
+        supabase
+          .from('year_group_equivalencies')
+          .select('equivalent_uk_year')
+          .eq('country_code', selectedCountry)
+          .eq('year_group_code', selectedYear)
+          .maybeSingle()
+      ])
+      if (subjectsRes.data) setSubjects(subjectsRes.data)
+      if (yearRes.data?.equivalent_uk_year) {
+        setEquivalentYear(yearRes.data.equivalent_uk_year)
+      }
       setLoadingSubjects(false)
     }
     fetchSubjects()
@@ -154,9 +169,8 @@ export default function CurriculumExplorer() {
         .maybeSingle(),
       supabase
         .from('averra_super_curriculum')
-        .select('topics,competencies')
-        .eq('country_code', selectedCountry)
-        .eq('year_group_code', selectedYear)
+        .select('topics,competencies,source_contributions,unique_additions')
+        .eq('year_group_code', equivalentYear)
         .eq('subject_code', subject.subject_code)
         .maybeSingle(),
     ])
@@ -535,6 +549,26 @@ export default function CurriculumExplorer() {
               )}
 
               {/* Units */}
+              {activeTab === 'averra' && activeCurriculum.source_contributions && (
+                <div className="rounded-2xl p-5 mb-6"
+                style={{ backgroundColor: '#062850' }}>
+                  <h4 className="font-bold text-white mb-3 text-sm">
+                    🌍 Drawn from 7 World Education Systems
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {Object.entries(activeCurriculum.source_contributions).map(([source, contributions]) => (
+                      <div key={source}
+                      className="bg-white/10 rounded-xl p-3">
+                        <p className="text-xs font-bold text-white mb-1">{source}</p>
+                        {(contributions as string[]).map((c, i) => (
+                          <p key={i} className="text-xs text-blue-200 leading-relaxed">• {c}</p>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {(activeCurriculum.topics || []).map((unit, ui) => (
                 <div key={ui}
                 className="rounded-2xl border border-gray-100 overflow-hidden">
