@@ -179,7 +179,6 @@ export default function JuniorAcademyPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {[
             {
-              emoji: '📚',
               title: 'Early & Primary Years',
               ages: 'Ages 5 – 11',
               desc: 'Building strong, confident foundations in core subjects. Lessons are structured yet engaging — designed to develop genuine understanding and a love for learning from the very start.',
@@ -189,9 +188,10 @@ export default function JuniorAcademyPage() {
                 'Science & the world around us',
                 'Computing & digital literacy',
               ],
+              image: { src: '/academy/students/primary.png', alt: 'Primary school students in uniform' },
+              color: '#062850',
             },
             {
-              emoji: '📐',
               title: 'Middle School Years',
               ages: 'Ages 11 – 14',
               desc: 'The transition years are critical. We provide clear, structured support across all core and optional subjects — helping learners build academic confidence as the work becomes more demanding.',
@@ -201,9 +201,10 @@ export default function JuniorAcademyPage() {
                 'Critical thinking development',
                 'Building academic independence',
               ],
+              image: { src: '/academy/students/middle.png', alt: 'Middle school students in uniform' },
+              color: '#325E84',
             },
             {
-              emoji: '🏆',
               title: 'Senior & Examination Years',
               ages: 'Ages 14 – 18',
               desc: 'Focused examination preparation and deep subject mastery for learners approaching their most important school assessments — wherever in the world those examinations are taken.',
@@ -213,43 +214,83 @@ export default function JuniorAcademyPage() {
                 'Subject-specific deep coaching',
                 'University preparation support',
               ],
+              image: { src: '/academy/students/senior.png', alt: 'Senior school students in uniform' },
+              color: '#497296',
             },
           ].map((item) => (
             <div key={item.title}
-            className="bg-white rounded-3xl p-7 border border-gray-100
+            className="bg-white rounded-3xl overflow-hidden border border-gray-100
             shadow-sm transition-all duration-300 hover:shadow-xl
-            hover:-translate-y-2 group overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-full
-              opacity-5 group-hover:opacity-10 transition-opacity duration-300"
-              style={{ backgroundColor: '#062850' }} />
+            hover:-translate-y-2 group">
 
-              <div className="text-5xl mb-4 transition-transform duration-300
-              group-hover:scale-110">
-                {item.emoji}
+              {/* Student Images */}
+              <div className="relative h-56 overflow-hidden"
+              style={{ backgroundColor: item.color + '10' }}>
+
+                {/* Background pattern */}
+                <div className="absolute inset-0 opacity-5"
+                style={{
+                  backgroundImage: `radial-gradient(circle at 20px 20px, ${item.color} 2px, transparent 0)`,
+                  backgroundSize: '40px 40px',
+                }} />
+
+                {/* Age badge */}
+                <div className="absolute top-4 left-4 z-10">
+                  <div className="px-3 py-1.5 rounded-full text-xs
+                  font-bold text-white shadow-md"
+                  style={{ backgroundColor: item.color }}>
+                    {item.ages}
+                  </div>
+                </div>
+
+                {/* Student photo */}
+                <div className="absolute inset-0">
+                  <img
+                    src={item.image.src}
+                    alt={item.image.alt}
+                    className="w-full h-full object-cover object-top
+                    transition-transform duration-700 group-hover:scale-105"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        parent.style.display = 'flex';
+                        parent.style.alignItems = 'center';
+                        parent.style.justifyContent = 'center';
+                        parent.style.fontSize = '4rem';
+                        parent.innerHTML = '👦👧';
+                      }
+                    }}
+                  />
+                  {/* Gradient overlay at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 h-16"
+                  style={{
+                    background: 'linear-gradient(to top, white, transparent)',
+                  }} />
+                </div>
               </div>
 
-              <div className="inline-flex items-center gap-2 px-3 py-1
-              rounded-full text-xs font-bold text-white mb-3"
-              style={{ backgroundColor: '#497296' }}>
-                {item.ages}
+              {/* Card Content */}
+              <div className="p-6">
+                <h3 className="font-bold text-xl mb-3"
+                style={{ color: '#062850' }}>
+                  {item.title}
+                </h3>
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                  {item.desc}
+                </p>
+                <ul className="space-y-1.5">
+                  {item.examples.map((ex) => (
+                    <li key={ex} className="flex items-start gap-2
+                    text-xs text-gray-600">
+                      <CheckCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
+                      style={{ color: item.color }} />
+                      {ex}
+                    </li>
+                  ))}
+                </ul>
               </div>
-
-              <h3 className="font-bold text-xl mb-3" style={{ color: '#062850' }}>
-                {item.title}
-              </h3>
-              <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                {item.desc}
-              </p>
-              <ul className="space-y-1.5">
-                {item.examples.map((ex) => (
-                  <li key={ex} className="flex items-start gap-2
-                  text-xs text-gray-600">
-                    <CheckCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
-                    style={{ color: '#497296' }} />
-                    {ex}
-                  </li>
-                ))}
-              </ul>
             </div>
           ))}
         </div>
@@ -529,7 +570,7 @@ export default function JuniorAcademyPage() {
               { flag: '🇳🇬', name: 'Nigeria', contribution: 'Culture & local exams' },
               { flag: '🇸🇬', name: 'Singapore', contribution: 'World #1 Maths method' },
               { flag: '🇫🇮', name: 'Finland', contribution: 'Deep understanding' },
-              { flag: '🧠', name: 'Your Child', contribution: 'Individual assessment' },
+              { flag: '🧠', name: 'Student', contribution: 'Individual assessment' },
             ].map((item) => (
               <div key={item.name} className="bg-white px-5 py-4 text-center
               transition-all duration-200 hover:bg-blue-50">
@@ -562,7 +603,7 @@ export default function JuniorAcademyPage() {
 
           <div className="relative">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-              Give Your Child the Averra Advantage
+              Give Student the Averra Advantage
             </h2>
             <p className="text-blue-300 text-base max-w-xl mx-auto mb-8 leading-relaxed">
               Join families from Nigeria, the United Kingdom and around the world
