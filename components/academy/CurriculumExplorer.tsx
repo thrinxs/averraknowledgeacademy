@@ -147,14 +147,14 @@ export default function CurriculumExplorer() {
     const [localRes, averraRes] = await Promise.all([
       supabase
         .from('local_curricula')
-        .select('units,competencies')
+        .select('topics,competencies')
         .eq('country_code', selectedCountry)
         .eq('year_group_code', selectedYear)
         .eq('subject_code', subject.subject_code)
         .maybeSingle(),
       supabase
         .from('averra_super_curriculum')
-        .select('units,competencies')
+        .select('topics,competencies')
         .eq('country_code', selectedCountry)
         .eq('year_group_code', selectedYear)
         .eq('subject_code', subject.subject_code)
@@ -535,7 +535,7 @@ export default function CurriculumExplorer() {
               )}
 
               {/* Units */}
-              {(activeCurriculum.units || []).map((unit, ui) => (
+              {(activeCurriculum.topics || []).map((unit, ui) => (
                 <div key={ui}
                 className="rounded-2xl border border-gray-100 overflow-hidden">
 
