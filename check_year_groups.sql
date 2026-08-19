@@ -1,0 +1,5 @@
+
+select column_name, data_type, is_nullable
+from information_schema.columns
+where table_name = 'year_group_equivalencies'
+order by ordinal_position;

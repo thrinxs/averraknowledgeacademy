@@ -137,7 +137,7 @@ export default function JuniorAcademyPage() {
                 transition-transform" />
               </Button>
             </Link>
-            <Link href="/academy#explorer">
+            <Link href="/academy/curriculum">
               <Button size="lg" variant="outline"
               className="border-2 border-white/50 text-white bg-transparent
               px-10 py-6 rounded-2xl hover:bg-white/10 hover:border-white
@@ -597,7 +597,7 @@ export default function JuniorAcademyPage() {
                   transition-transform" />
                 </Button>
               </Link>
-              <Link href="/academy#explorer">
+              <Link href="/academy/curriculum">
                 <Button size="lg" variant="outline"
                 className="border-2 border-white/40 text-white bg-transparent
                 px-10 py-6 rounded-2xl hover:bg-white/10 hover:border-white

@@ -1058,7 +1058,7 @@ export default function AcademyEnrollForm() {
                       See every topic side by side on the Academy page.
                     </p>
                   </div>
-                  <Link href="/academy#explorer" target="_blank"
+                  <Link href="/academy/curriculum" target="_blank"
                   className="text-xs font-semibold whitespace-nowrap
                   px-4 py-2 rounded-lg text-white"
                   style={{ backgroundColor: '#497296' }}>
