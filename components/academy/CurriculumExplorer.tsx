@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { CheckCircle, XCircle, ChevronDown, Loader2 } from 'lucide-react'
+import {
+  CheckCircle,
+  XCircle,
+  Loader2,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  ArrowLeft,
+} from 'lucide-react'
 
 type Country = {
   country_code: string
@@ -28,6 +36,24 @@ type Subject = {
   averra_subject_code: string | null
 }
 
+type Subtopic = string
+
+type Topic = {
+  name: string
+  subtopics: Subtopic[]
+}
+
+type Unit = {
+  name: string
+  description?: string
+  topics: Topic[]
+}
+
+type CurriculumData = {
+  units: Unit[]
+  competencies?: { by_end_of_year?: string[] }
+}
+
 const STAGE_LABELS: Record<string, string> = {
   primary: '🏫 Primary',
   junior_secondary: '📘 Junior Secondary',
@@ -46,11 +72,16 @@ export default function CurriculumExplorer() {
   const [yearGroups, setYearGroups] = useState<YearGroup[]>([])
   const [selectedYear, setSelectedYear] = useState<string>('')
   const [subjects, setSubjects] = useState<Subject[]>([])
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null)
+  const [localCurriculum, setLocalCurriculum] = useState<CurriculumData | null>(null)
+  const [averraCurriculum, setAverraCurriculum] = useState<CurriculumData | null>(null)
+  const [expandedUnits, setExpandedUnits] = useState<Record<string, boolean>>({})
   const [loadingCountries, setLoadingCountries] = useState(true)
   const [loadingYears, setLoadingYears] = useState(false)
   const [loadingSubjects, setLoadingSubjects] = useState(false)
+  const [loadingCurriculum, setLoadingCurriculum] = useState(false)
+  const [activeTab, setActiveTab] = useState<'local' | 'averra'>('local')
 
-  // Load countries on mount
   useEffect(() => {
     async function fetchCountries() {
       const { data } = await supabase
@@ -64,11 +95,13 @@ export default function CurriculumExplorer() {
     fetchCountries()
   }, [])
 
-  // Load year groups when country changes
   useEffect(() => {
     if (!selectedCountry) return
     setSelectedYear('')
     setSubjects([])
+    setSelectedSubject(null)
+    setLocalCurriculum(null)
+    setAverraCurriculum(null)
     setLoadingYears(true)
     async function fetchYearGroups() {
       const { data } = await supabase
@@ -82,9 +115,11 @@ export default function CurriculumExplorer() {
     fetchYearGroups()
   }, [selectedCountry])
 
-  // Load subjects when year group changes
   useEffect(() => {
     if (!selectedCountry || !selectedYear) return
+    setSelectedSubject(null)
+    setLocalCurriculum(null)
+    setAverraCurriculum(null)
     setLoadingSubjects(true)
     async function fetchSubjects() {
       const { data } = await supabase
@@ -100,21 +135,56 @@ export default function CurriculumExplorer() {
     fetchSubjects()
   }, [selectedCountry, selectedYear])
 
+  async function handleSubjectClick(subject: Subject) {
+    if (!subject.averra_teaches) return
+    setSelectedSubject(subject)
+    setLocalCurriculum(null)
+    setAverraCurriculum(null)
+    setExpandedUnits({})
+    setActiveTab('local')
+    setLoadingCurriculum(true)
+
+    const [localRes, averraRes] = await Promise.all([
+      supabase
+        .from('local_curricula')
+        .select('units,competencies')
+        .eq('country_code', selectedCountry)
+        .eq('year_group_code', selectedYear)
+        .eq('subject_code', subject.subject_code)
+        .maybeSingle(),
+      supabase
+        .from('averra_super_curriculum')
+        .select('units,competencies')
+        .eq('country_code', selectedCountry)
+        .eq('year_group_code', selectedYear)
+        .eq('subject_code', subject.subject_code)
+        .maybeSingle(),
+    ])
+
+    if (localRes.data) setLocalCurriculum(localRes.data)
+    if (averraRes.data) setAverraCurriculum(averraRes.data)
+    setLoadingCurriculum(false)
+  }
+
+  function toggleUnit(unitName: string) {
+    setExpandedUnits(prev => ({ ...prev, [unitName]: !prev[unitName] }))
+  }
+
   const selectedCountryData = countries.find(c => c.country_code === selectedCountry)
   const selectedYearData = yearGroups.find(y => y.year_group_code === selectedYear)
-
   const compulsory = subjects.filter(s => s.subject_type === 'compulsory')
   const elective = subjects.filter(s => s.subject_type === 'elective')
   const averraTeaches = subjects.filter(s => s.averra_teaches)
   const averraDoesNotTeach = subjects.filter(s => !s.averra_teaches)
 
-  // Group year groups by stage
   const grouped = yearGroups.reduce((acc, yg) => {
     const stage = yg.stage || 'primary'
     if (!acc[stage]) acc[stage] = []
     acc[stage].push(yg)
     return acc
   }, {} as Record<string, YearGroup[]>)
+
+  const activeCurriculum = activeTab === 'local' ? localCurriculum : averraCurriculum
 
   return (
     <div className="w-full">
@@ -137,14 +207,13 @@ export default function CurriculumExplorer() {
         <p className="text-sm font-bold mb-3" style={{ color: '#062850' }}>
           Step 1 — Select Your Country
         </p>
-
         {loadingCountries ? (
           <div className="flex items-center gap-2 text-gray-400 text-sm">
             <Loader2 className="w-4 h-4 animate-spin" />
             Loading countries...
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {countries.map(country => {
               const isSelected = selectedCountry === country.country_code
               return (
@@ -159,10 +228,8 @@ export default function CurriculumExplorer() {
                   }}
                 >
                   <span className="text-3xl">{country.flag}</span>
-                  <span
-                    className="text-xs font-semibold text-center leading-tight"
-                    style={{ color: isSelected ? 'white' : '#062850' }}
-                  >
+                  <span className="text-xs font-semibold text-center leading-tight"
+                  style={{ color: isSelected ? 'white' : '#062850' }}>
                     {country.country_name}
                   </span>
                 </button>
@@ -193,11 +260,9 @@ export default function CurriculumExplorer() {
           {selectedCountryData.exam_system?.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {selectedCountryData.exam_system.map(exam => (
-                <span
-                  key={exam}
-                  className="px-3 py-1 rounded-full text-xs font-bold text-white"
-                  style={{ backgroundColor: '#497296' }}
-                >
+                <span key={exam}
+                className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                style={{ backgroundColor: '#497296' }}>
                   {exam}
                 </span>
               ))}
@@ -212,7 +277,6 @@ export default function CurriculumExplorer() {
           <p className="text-sm font-bold mb-3" style={{ color: '#062850' }}>
             Step 2 — Select Year Group / Class
           </p>
-
           {loadingYears ? (
             <div className="flex items-center gap-2 text-gray-400 text-sm">
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -220,7 +284,7 @@ export default function CurriculumExplorer() {
             </div>
           ) : (
             <div className="space-y-4">
-              {['primary', 'junior_secondary', 'senior_secondary'].map(stage => {
+              {['primary','junior_secondary','senior_secondary'].map(stage => {
                 const groups = grouped[stage]
                 if (!groups || groups.length === 0) return null
                 return (
@@ -258,10 +322,13 @@ export default function CurriculumExplorer() {
       )}
 
       {/* Step 3 — Subjects */}
-      {selectedYear && (
+      {selectedYear && !selectedSubject && (
         <div>
           <p className="text-sm font-bold mb-5" style={{ color: '#062850' }}>
             Step 3 — Subjects for {selectedYearData?.year_group_label}
+            <span className="text-gray-400 font-normal ml-2">
+              — click any green subject to view its curriculum
+            </span>
           </p>
 
           {loadingSubjects ? (
@@ -279,7 +346,7 @@ export default function CurriculumExplorer() {
           ) : (
             <div className="space-y-8">
 
-              {/* Summary bar */}
+              {/* Summary */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   { label: 'Total Subjects', value: subjects.length, color: '#062850', bg: '#EBF4FF' },
@@ -287,8 +354,7 @@ export default function CurriculumExplorer() {
                   { label: 'Elective', value: elective.length, color: '#B45309', bg: '#FFFBEB' },
                   { label: 'Averra Teaches', value: averraTeaches.length, color: '#16A34A', bg: '#F0FDF4' },
                 ].map(stat => (
-                  <div key={stat.label}
-                  className="rounded-2xl p-4 text-center"
+                  <div key={stat.label} className="rounded-2xl p-4 text-center"
                   style={{ backgroundColor: stat.bg }}>
                     <p className="text-2xl font-bold mb-1" style={{ color: stat.color }}>
                       {stat.value}
@@ -298,7 +364,7 @@ export default function CurriculumExplorer() {
                 ))}
               </div>
 
-              {/* Subjects Averra Teaches */}
+              {/* Averra Teaches */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
                   <div className="w-3 h-3 rounded-full bg-green-500" />
@@ -308,13 +374,16 @@ export default function CurriculumExplorer() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {averraTeaches.map(subject => (
-                    <div
+                    <button
                       key={subject.subject_code}
+                      onClick={() => handleSubjectClick(subject)}
                       className="flex items-center gap-3 p-4 rounded-xl
-                      border border-green-100 bg-green-50"
+                      border border-green-100 bg-green-50 text-left
+                      transition-all duration-200 hover:shadow-md
+                      hover:-translate-y-0.5 hover:border-green-300 group"
                     >
                       <CheckCircle className="w-5 h-5 flex-shrink-0 text-green-500" />
-                      <div>
+                      <div className="flex-1">
                         <p className="font-semibold text-sm" style={{ color: '#062850' }}>
                           {subject.subject_name}
                         </p>
@@ -322,12 +391,14 @@ export default function CurriculumExplorer() {
                           {subject.subject_type}
                         </p>
                       </div>
-                    </div>
+                      <BookOpen className="w-4 h-4 text-green-400
+                      opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                    </button>
                   ))}
                 </div>
               </div>
 
-              {/* Subjects Averra Does Not Yet Teach */}
+              {/* Not Yet Taught */}
               {averraDoesNotTeach.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-4">
@@ -338,11 +409,9 @@ export default function CurriculumExplorer() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {averraDoesNotTeach.map(subject => (
-                      <div
-                        key={subject.subject_code}
-                        className="flex items-center gap-3 p-4 rounded-xl
-                        border border-gray-100 bg-gray-50"
-                      >
+                      <div key={subject.subject_code}
+                      className="flex items-center gap-3 p-4 rounded-xl
+                      border border-gray-100 bg-gray-50">
                         <XCircle className="w-5 h-5 flex-shrink-0 text-gray-300" />
                         <div>
                           <p className="font-semibold text-sm text-gray-500">
@@ -357,12 +426,177 @@ export default function CurriculumExplorer() {
                   </div>
                   <p className="text-xs text-gray-400 mt-3">
                     These subjects are part of the {selectedCountryData?.country_name} curriculum
-                    but are not yet offered by Averra. We are expanding our subject offering
-                    regularly.
+                    but are not yet offered by Averra. We are expanding regularly.
                   </p>
                 </div>
               )}
+            </div>
+          )}
+        </div>
+      )}
 
+      {/* Step 4 — Curriculum Detail */}
+      {selectedSubject && (
+        <div>
+          {/* Back button */}
+          <button
+            onClick={() => {
+              setSelectedSubject(null)
+              setLocalCurriculum(null)
+              setAverraCurriculum(null)
+            }}
+            className="flex items-center gap-2 text-sm text-gray-500
+            hover:text-[#062850] transition-colors mb-6 group"
+          >
+            <ArrowLeft className="w-4 h-4 transition-transform
+            group-hover:-translate-x-1" />
+            Back to subjects
+          </button>
+
+          {/* Subject header */}
+          <div className="rounded-2xl p-6 mb-6"
+          style={{ backgroundColor: '#062850' }}>
+            <p className="text-blue-300 text-xs font-semibold uppercase
+            tracking-wide mb-1">
+              {selectedCountryData?.flag} {selectedCountryData?.country_name} —{' '}
+              {selectedYearData?.year_group_label}
+            </p>
+            <h3 className="text-2xl font-bold text-white mb-1">
+              {selectedSubject.subject_name}
+            </h3>
+            <p className="text-blue-300 text-sm capitalize">
+              {selectedSubject.subject_type} subject
+            </p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab('local')}
+              className="px-5 py-2.5 rounded-xl text-sm font-bold
+              transition-all duration-200"
+              style={{
+                backgroundColor: activeTab === 'local' ? '#062850' : '#F0F6FB',
+                color: activeTab === 'local' ? 'white' : '#062850',
+              }}
+            >
+              📋 {selectedCountryData?.country_name} Curriculum
+            </button>
+            <button
+              onClick={() => setActiveTab('averra')}
+              className="px-5 py-2.5 rounded-xl text-sm font-bold
+              transition-all duration-200"
+              style={{
+                backgroundColor: activeTab === 'averra' ? '#062850' : '#F0F6FB',
+                color: activeTab === 'averra' ? 'white' : '#062850',
+              }}
+            >
+              ✨ Averra Super Curriculum
+            </button>
+          </div>
+
+          {loadingCurriculum ? (
+            <div className="flex items-center justify-center gap-3 py-20">
+              <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#062850' }} />
+              <span className="text-gray-400 text-sm">Loading curriculum...</span>
+            </div>
+          ) : !activeCurriculum ? (
+            <div className="rounded-2xl p-12 text-center"
+            style={{ backgroundColor: '#F0F6FB' }}>
+              <div className="text-4xl mb-4">📚</div>
+              <p className="font-bold mb-2" style={{ color: '#062850' }}>
+                Curriculum content coming soon
+              </p>
+              <p className="text-gray-400 text-sm">
+                We are currently building out the full curriculum detail
+                for this subject and year group.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+
+              {/* Competencies */}
+              {activeCurriculum.competencies?.by_end_of_year &&
+              activeCurriculum.competencies.by_end_of_year.length > 0 && (
+                <div className="rounded-2xl p-6 mb-6"
+                style={{ backgroundColor: '#F0F6FB' }}>
+                  <h4 className="font-bold mb-3" style={{ color: '#062850' }}>
+                    🎯 By the end of this year, the learner should be able to:
+                  </h4>
+                  <ul className="space-y-2">
+                    {activeCurriculum.competencies.by_end_of_year.map((comp, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                        <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-green-500" />
+                        {comp}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Units */}
+              {(activeCurriculum.units || []).map((unit, ui) => (
+                <div key={ui}
+                className="rounded-2xl border border-gray-100 overflow-hidden">
+
+                  {/* Unit header */}
+                  <button
+                    onClick={() => toggleUnit(`${ui}`)}
+                    className="w-full flex items-center justify-between
+                    p-5 text-left transition-colors hover:bg-gray-50"
+                    style={{ backgroundColor: expandedUnits[`${ui}`] ? '#F0F6FB' : 'white' }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center
+                      justify-center text-sm font-bold text-white flex-shrink-0"
+                      style={{ backgroundColor: '#062850' }}>
+                        {ui + 1}
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm" style={{ color: '#062850' }}>
+                          {unit.name}
+                        </p>
+                        {unit.description && (
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {unit.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    {expandedUnits[`${ui}`]
+                      ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    }
+                  </button>
+
+                  {/* Topics */}
+                  {expandedUnits[`${ui}`] && (
+                    <div className="border-t border-gray-100">
+                      {(unit.topics || []).map((topic, ti) => (
+                        <div key={ti}
+                        className="px-5 py-4 border-b border-gray-50 last:border-0">
+                          <p className="font-semibold text-sm mb-2"
+                          style={{ color: '#325E84' }}>
+                            {topic.name}
+                          </p>
+                          {topic.subtopics && topic.subtopics.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {topic.subtopics.map((sub, si) => (
+                                <span key={si}
+                                className="px-3 py-1 rounded-full text-xs
+                                font-medium text-gray-600 border border-gray-100"
+                                style={{ backgroundColor: '#F9FAFB' }}>
+                                  {sub}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -377,8 +611,8 @@ export default function CurriculumExplorer() {
             Select a country to get started
           </p>
           <p className="text-gray-400 text-sm">
-            Choose your country above to explore the curriculum for every
-            year group and see which subjects Averra teaches.
+            Choose your country above to explore the full curriculum for
+            every year group and see which subjects Averra teaches.
           </p>
         </div>
       )}

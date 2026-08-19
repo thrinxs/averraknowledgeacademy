@@ -1,0 +1,5 @@
+
+select column_name, data_type, is_nullable
+from information_schema.columns
+where table_name = 'local_curricula'
+order by ordinal_position;
