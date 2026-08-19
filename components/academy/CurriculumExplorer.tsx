@@ -36,6 +36,10 @@ type Subject = {
   averra_subject_code: string | null
 }
 
+type CurriculumMeta = {
+  source_url: string | null
+}
+
 type Subtopic = string
 
 type Topic = {
@@ -84,6 +88,7 @@ export default function CurriculumExplorer() {
   const [loadingCurriculum, setLoadingCurriculum] = useState(false)
   const [activeTab, setActiveTab] = useState<'local' | 'averra'>('local')
   const [equivalentYear, setEquivalentYear] = useState<string>('')
+  const [curriculumMeta, setCurriculumMeta] = useState<CurriculumMeta | null>(null)
 
   useEffect(() => {
     async function fetchCountries() {
@@ -155,6 +160,7 @@ export default function CurriculumExplorer() {
     setSelectedSubject(subject)
     setLocalCurriculum(null)
     setAverraCurriculum(null)
+    setCurriculumMeta(null)
     setExpandedUnits({})
     setActiveTab('local')
     setLoadingCurriculum(true)
@@ -162,7 +168,7 @@ export default function CurriculumExplorer() {
     const [localRes, averraRes] = await Promise.all([
       supabase
         .from('local_curricula')
-        .select('topics,competencies')
+        .select('topics,competencies,source_url')
         .eq('country_code', selectedCountry)
         .eq('year_group_code', selectedYear)
         .eq('subject_code', subject.subject_code)
@@ -175,7 +181,10 @@ export default function CurriculumExplorer() {
         .maybeSingle(),
     ])
 
-    if (localRes.data) setLocalCurriculum(localRes.data)
+    if (localRes.data) {
+      setLocalCurriculum(localRes.data)
+      setCurriculumMeta({ source_url: localRes.data.source_url || null })
+    }
     if (averraRes.data) setAverraCurriculum(averraRes.data)
     setLoadingCurriculum(false)
   }
@@ -483,6 +492,41 @@ export default function CurriculumExplorer() {
             </p>
           </div>
 
+          {/* Official Curriculum Link */}
+          {curriculumMeta?.source_url && (
+            <a
+              href={curriculumMeta.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-4 rounded-2xl mb-6
+              border-2 transition-all duration-200 hover:scale-105 group"
+              style={{ borderColor: '#497296', backgroundColor: '#F0F6FB' }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center
+                justify-center flex-shrink-0 text-lg"
+                style={{ backgroundColor: '#062850' }}
+              >
+                📄
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-sm" style={{ color: '#062850' }}>
+                  View Official {selectedCountryData?.country_name} Curriculum
+                </p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Opens the official government curriculum document in a new tab
+                </p>
+              </div>
+              <div
+                className="text-xs font-bold px-3 py-1.5 rounded-lg text-white
+                flex-shrink-0 group-hover:opacity-90"
+                style={{ backgroundColor: '#497296' }}
+              >
+                Open →
+              </div>
+            </a>
+          )}
+
           {/* Tabs */}
           <div className="flex gap-2 mb-6">
             <button
@@ -519,12 +563,28 @@ export default function CurriculumExplorer() {
             style={{ backgroundColor: '#F0F6FB' }}>
               <div className="text-4xl mb-4">📚</div>
               <p className="font-bold mb-2" style={{ color: '#062850' }}>
-                Curriculum content coming soon
+                {activeTab === 'averra'
+                  ? 'Averra Super Curriculum coming soon for this level'
+                  : 'Detailed curriculum content coming soon'}
               </p>
-              <p className="text-gray-400 text-sm">
-                We are currently building out the full curriculum detail
-                for this subject and year group.
+              <p className="text-gray-400 text-sm mb-4">
+                {activeTab === 'averra'
+                  ? 'We are building the enhanced Averra curriculum for this year group.'
+                  : 'We are currently building out the full curriculum detail for this subject and year group.'}
               </p>
+              {activeTab === 'local' && curriculumMeta?.source_url && (
+                <a
+                  href={curriculumMeta.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-3
+                  rounded-xl text-sm font-bold text-white transition-all
+                  hover:opacity-90 hover:scale-105"
+                  style={{ backgroundColor: '#062850' }}
+                >
+                  📄 View Official Curriculum Instead →
+                </a>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
