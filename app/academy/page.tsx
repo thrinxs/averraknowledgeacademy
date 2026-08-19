@@ -208,7 +208,7 @@ export default function AcademyPage() {
     <>
       <AcademyHero />
 
-      <section className="py-24 bg-white overflow-hidden">
+      <section id='divisions' className="py-24 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           <div className="text-center mb-16">
@@ -423,6 +423,107 @@ export default function AcademyPage() {
                   </Button>
                 </Link>
               </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* Library Section */}
+      <section className="py-24" style={{ backgroundColor: '#F0F6FB' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full
+            text-sm font-semibold text-white mb-5"
+            style={{ backgroundColor: '#062850' }}>
+              📖 Averra Library
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4"
+            style={{ color: '#062850' }}>
+              The Averra Library
+            </h2>
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+              Access thousands of textbooks, educational books and study resources.
+              Buy physical books, purchase eBooks, or rent eBooks — all in one place.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            {[
+              {
+                emoji: '📦',
+                title: 'Buy Physical Books',
+                desc: 'Order original textbooks and educational books delivered to your door. Covering all levels from primary to university.',
+                tag: 'Ships Worldwide',
+                tagColor: '#062850',
+                cta: 'Browse Physical Books',
+                status: 'coming_soon',
+              },
+              {
+                emoji: '📱',
+                title: 'Buy eBooks',
+                desc: 'Purchase digital editions of textbooks and study materials. Instant access, read on any device.',
+                tag: 'Instant Access',
+                tagColor: '#16A34A',
+                cta: 'Browse eBooks',
+                status: 'coming_soon',
+              },
+              {
+                emoji: '📅',
+                title: 'Rent eBooks',
+                desc: 'Rent eBooks for a term or academic year. Perfect for subjects you only need temporarily — at a fraction of the cost.',
+                tag: 'Save Up to 80%',
+                tagColor: '#D97706',
+                cta: 'Browse Rentals',
+                status: 'coming_soon',
+              },
+            ].map(item => (
+              <div key={item.title}
+              className="bg-white rounded-3xl p-7 border border-gray-100
+              shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <div className="text-5xl mb-5">{item.emoji}</div>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="font-bold text-lg" style={{ color: '#062850' }}>
+                    {item.title}
+                  </h3>
+                  <span className="text-xs px-2 py-0.5 rounded-full font-semibold text-white"
+                  style={{ backgroundColor: item.tagColor }}>
+                    {item.tag}
+                  </span>
+                </div>
+                <p className="text-gray-500 text-sm leading-relaxed mb-6">
+                  {item.desc}
+                </p>
+                <div className="flex items-center gap-2 text-sm font-semibold"
+                style={{ color: '#497296' }}>
+                  <span>Coming Soon</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-3xl p-8 flex flex-col md:flex-row items-center
+          justify-between gap-6" style={{ backgroundColor: '#062850' }}>
+            <div>
+              <p className="font-bold text-white text-xl mb-1">
+                📚 Want to be notified when the library launches?
+              </p>
+              <p className="text-blue-300 text-sm">
+                We are currently building our catalogue of textbooks and educational resources.
+              </p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <input
+                type="email"
+                placeholder="Your email address"
+                className="px-4 py-3 rounded-xl text-sm text-gray-800
+                focus:outline-none w-56"
+              />
+              <button className="px-5 py-3 rounded-xl text-sm font-bold
+              text-white transition-all hover:opacity-90 whitespace-nowrap"
+              style={{ backgroundColor: '#497296' }}>
+                Notify Me
+              </button>
             </div>
           </div>
 
