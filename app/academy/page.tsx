@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import AcademyHero from '@/components/academy/AcademyHero'
+import SmarterTooltip from '@/components/ui/SmarterTooltip'
 
 function JuniorIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (

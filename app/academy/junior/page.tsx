@@ -1,3 +1,4 @@
+import SmarterTooltip from '@/components/ui/SmarterTooltip'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react'

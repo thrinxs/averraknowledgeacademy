@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
+import SmarterTooltip from '@/components/ui/SmarterTooltip'
 
 export default function AcademyHero() {
   const [mounted, setMounted] = useState(false)
@@ -92,9 +93,11 @@ export default function AcademyHero() {
           <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full
           mb-10 border border-white/30 bg-white/10 backdrop-blur-sm">
             <span className="text-yellow-300 text-xl">✨</span>
-            <span className="text-white font-semibold text-sm md:text-base italic">
-              Smarter Than Einstein
-            </span>
+            <SmarterTooltip>
+              <span className="text-white font-semibold text-sm md:text-base italic">
+                Smarter Than Einstein
+              </span>
+            </SmarterTooltip>
             <span className="text-blue-200 text-sm">
               — Understand. Don&apos;t Memorise.
             </span>
