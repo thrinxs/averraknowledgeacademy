@@ -220,48 +220,59 @@ export default function JuniorAcademyPage() {
             },
           ].map((item) => (
             <div key={item.title}
-            className="relative rounded-3xl overflow-hidden border border-gray-100
+            className="bg-white rounded-3xl overflow-hidden border border-gray-100
             shadow-sm transition-all duration-300 hover:shadow-xl
-            hover:-translate-y-2 group"
-            style={{ minHeight: '480px' }}>
+            hover:-translate-y-2 group">
 
               {/* Student Images */}
-              {/* Full card background image */}
-              <div className="absolute inset-0">
-                <StudentImage
-                  src={item.image.src}
-                  alt={item.image.alt}
-                />
-              </div>
+              <div className="relative h-56 overflow-hidden"
+              style={{ backgroundColor: item.color + '10' }}>
 
-              {/* Age badge */}
-              <div className="absolute top-4 left-4 z-10">
-                <div className="px-3 py-1.5 rounded-full text-xs
-                font-bold text-white shadow-md"
-                style={{ backgroundColor: item.color }}>
-                  {item.ages}
+                {/* Background pattern */}
+                <div className="absolute inset-0 opacity-5"
+                style={{
+                  backgroundImage: `radial-gradient(circle at 20px 20px, ${item.color} 2px, transparent 0)`,
+                  backgroundSize: '40px 40px',
+                }} />
+
+                {/* Age badge */}
+                <div className="absolute top-4 left-4 z-10">
+                  <div className="px-3 py-1.5 rounded-full text-xs
+                  font-bold text-white shadow-md"
+                  style={{ backgroundColor: item.color }}>
+                    {item.ages}
+                  </div>
+                </div>
+
+                {/* Student photo */}
+                <div className="absolute inset-0">
+                  <StudentImage
+                    src={item.image.src}
+                    alt={item.image.alt}
+                  />
+                  {/* Gradient overlay at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 h-16"
+                  style={{
+                    background: 'linear-gradient(to top, white, transparent)',
+                  }} />
                 </div>
               </div>
 
-              {/* Text overlay at bottom */}
-              <div
-                className="absolute bottom-0 left-0 right-0 z-10 p-6"
-                style={{
-                  background: `linear-gradient(to top, rgba(6,40,80,0.97) 0%, rgba(6,40,80,0.85) 60%, rgba(6,40,80,0.0) 100%)`,
-                }}
-              >
-                <h3 className="font-bold text-xl mb-2 text-white">
+              {/* Card Content */}
+              <div className="p-6">
+                <h3 className="font-bold text-xl mb-3"
+                style={{ color: '#062850' }}>
                   {item.title}
                 </h3>
-                <p className="text-blue-200 text-sm leading-relaxed mb-4">
+                <p className="text-gray-500 text-sm leading-relaxed mb-4">
                   {item.desc}
                 </p>
                 <ul className="space-y-1.5">
                   {item.examples.map((ex) => (
                     <li key={ex} className="flex items-start gap-2
-                    text-xs text-blue-100">
+                    text-xs text-gray-600">
                       <CheckCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5"
-                      style={{ color: '#97C3E0' }} />
+                      style={{ color: item.color }} />
                       {ex}
                     </li>
                   ))}
