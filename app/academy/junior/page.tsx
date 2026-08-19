@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react'
 import SmarterTooltip from '@/components/ui/SmarterTooltip'
+import StudentImage from '@/components/academy/StudentImage'
 
 export const metadata = {
   title: 'Averra Junior Academy | Averra Knowledge Academy',
@@ -245,23 +246,9 @@ export default function JuniorAcademyPage() {
 
                 {/* Student photo */}
                 <div className="absolute inset-0">
-                  <img
+                  <StudentImage
                     src={item.image.src}
                     alt={item.image.alt}
-                    className="w-full h-full object-cover object-top
-                    transition-transform duration-700 group-hover:scale-105"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.style.display = 'flex';
-                        parent.style.alignItems = 'center';
-                        parent.style.justifyContent = 'center';
-                        parent.style.fontSize = '4rem';
-                        parent.innerHTML = '👦👧';
-                      }
-                    }}
                   />
                   {/* Gradient overlay at bottom */}
                   <div className="absolute bottom-0 left-0 right-0 h-16"
