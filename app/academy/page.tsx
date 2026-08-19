@@ -8,7 +8,7 @@ import AcademyHero from '@/components/academy/AcademyHero'
 import SuperCurriculumSection from '@/components/academy/SuperCurriculumSection'
 import CurriculumExplorer from '@/components/academy/CurriculumExplorer'
 
-function JuniorIcon({ className }: { className?: string }) {
+function JuniorIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none">
       <rect x="6" y="10" width="36" height="28" rx="4" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2"/>
@@ -20,7 +20,7 @@ function JuniorIcon({ className }: { className?: string }) {
   )
 }
 
-function UniversityIcon({ className }: { className?: string }) {
+function UniversityIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none">
       <path d="M24 4L4 14l20 10 20-10L24 4z" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
@@ -34,7 +34,7 @@ function UniversityIcon({ className }: { className?: string }) {
   )
 }
 
-function AdultIcon({ className }: { className?: string }) {
+function AdultIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none">
       <circle cx="24" cy="14" r="8" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2"/>
@@ -44,7 +44,7 @@ function AdultIcon({ className }: { className?: string }) {
   )
 }
 
-function LanguageIcon({ className }: { className?: string }) {
+function LanguageIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none">
       <circle cx="24" cy="24" r="18" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2"/>
@@ -55,7 +55,7 @@ function LanguageIcon({ className }: { className?: string }) {
   )
 }
 
-function TeacherIcon({ className }: { className?: string }) {
+function TeacherIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none">
       <rect x="4" y="8" width="32" height="24" rx="3" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2"/>
@@ -68,7 +68,7 @@ function TeacherIcon({ className }: { className?: string }) {
   )
 }
 
-function ProfessionalIcon({ className }: { className?: string }) {
+function ProfessionalIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} viewBox="0 0 48 48" fill="none">
       <rect x="6" y="18" width="36" height="24" rx="3" fill="currentColor" fillOpacity="0.15" stroke="currentColor" strokeWidth="2"/>
