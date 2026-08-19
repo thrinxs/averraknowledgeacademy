@@ -21,12 +21,65 @@ export default function JuniorAcademyPage() {
           background: 'linear-gradient(135deg, #062850 0%, #1D4469 50%, #325E84 100%)',
         }}
       >
-        {/* Decorative circles */}
+        {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full opacity-10 animate-pulse"
           style={{ backgroundColor: '#97C3E0', animationDuration: '5s' }} />
           <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full opacity-10 animate-pulse"
           style={{ backgroundColor: '#497296', animationDuration: '7s' }} />
+
+          {/* Floating school items */}
+          {[
+            { icon: '✏️', top: '12%', left: '6%', delay: '0s', duration: '3s', rotate: '-15deg' },
+            { icon: '📐', top: '20%', right: '8%', delay: '0.5s', duration: '4s', rotate: '10deg' },
+            { icon: '📖', bottom: '35%', left: '5%', delay: '1s', duration: '3.5s', rotate: '5deg' },
+            { icon: '🔭', top: '55%', right: '6%', delay: '1.5s', duration: '5s', rotate: '-8deg' },
+            { icon: '🎨', bottom: '25%', right: '15%', delay: '2s', duration: '4s', rotate: '12deg' },
+            { icon: '🔬', top: '35%', left: '4%', delay: '0.8s', duration: '3.8s', rotate: '-10deg' },
+            { icon: '🌟', top: '8%', right: '25%', delay: '1.2s', duration: '2.5s', rotate: '0deg' },
+            { icon: '💡', bottom: '15%', left: '18%', delay: '2.5s', duration: '4.5s', rotate: '8deg' },
+            { icon: '🎯', top: '70%', left: '10%', delay: '0.3s', duration: '3.2s', rotate: '-5deg' },
+            { icon: '📝', top: '45%', right: '3%', delay: '1.8s', duration: '4.2s', rotate: '15deg' },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className="absolute opacity-20 text-3xl select-none"
+              style={{
+                top: item.top,
+                bottom: item.bottom,
+                left: item.left,
+                right: item.right,
+                transform: `rotate(${item.rotate})`,
+                animation: `float ${item.duration} ease-in-out infinite`,
+                animationDelay: item.delay,
+              }}
+            >
+              {item.icon}
+            </div>
+          ))}
+
+          {/* Floating stars/sparkles */}
+          {[
+            { top: '15%', left: '20%', size: 'w-2 h-2', delay: '0s' },
+            { top: '30%', right: '20%', size: 'w-1.5 h-1.5', delay: '1s' },
+            { bottom: '40%', left: '25%', size: 'w-1 h-1', delay: '2s' },
+            { top: '60%', right: '30%', size: 'w-2 h-2', delay: '0.5s' },
+            { bottom: '20%', right: '10%', size: 'w-1.5 h-1.5', delay: '1.5s' },
+            { top: '80%', left: '35%', size: 'w-1 h-1', delay: '2.5s' },
+          ].map((star, i) => (
+            <div
+              key={i}
+              className={`absolute rounded-full bg-white opacity-40 ${star.size}`}
+              style={{
+                top: star.top,
+                bottom: star.bottom,
+                left: star.left,
+                right: star.right,
+                animation: `twinkle 2s ease-in-out infinite`,
+                animationDelay: star.delay,
+              }}
+            />
+          ))}
         </div>
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
