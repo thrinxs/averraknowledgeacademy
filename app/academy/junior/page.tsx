@@ -177,7 +177,7 @@ export default function JuniorAcademyPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 mt-20">
           {[
             {
               title: 'Early & Primary Years',
