@@ -1416,128 +1416,233 @@ export default function AcademyEnrollForm() {
               </div>
             )}
 
-            {/* ════════════════════════════ */}
-            {/* STEP 5 — SCHEDULE           */}
-            {/* ════════════════════════════ */}
+
+            {/* STEP 5 — SCHEDULE */}
             {step === 5 && (
               <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold mb-3"
-                  style={{ color: '#062850' }}>
-                    Preferred Days *
-                    <span className="text-gray-400 font-normal ml-1">
-                      (select all that apply)
-                    </span>
-                  </label>
-                  <div className="flex flex-wrap gap-3">
-                    {DAYS.map(day => {
-                      const isSelected = formData.preferred_days.includes(day)
-                      return (
-                        <button
-                          key={day}
-                          type="button"
-                          onClick={() => toggleDay(day)}
-                          className={`px-4 py-2.5 rounded-xl border-2
-                          font-medium text-sm transition-all duration-200
-                          hover:scale-105 ${isSelected
-                            ? 'text-white'
-                            : 'bg-white text-gray-600 border-gray-200'}`}
-                          style={isSelected
-                            ? { backgroundColor: '#062850', borderColor: '#062850' }
-                            : {}}
-                        >
-                          {day}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-bold mb-3"
-                  style={{ color: '#062850' }}>
-                    Preferred Time of Day *
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                      { key: 'Morning (8am – 12pm)',   emoji: '🌅', desc: '8:00 AM – 12:00 PM' },
-                      { key: 'Afternoon (12pm – 4pm)', emoji: '☀️', desc: '12:00 PM – 4:00 PM' },
-                      { key: 'Evening (4pm – 8pm)',    emoji: '🌆', desc: '4:00 PM – 8:00 PM' },
-                    ].map(time => {
-                      const isSelected = formData.preferred_time === time.key
-                      return (
-                        <button
-                          key={time.key}
-                          type="button"
-                          onClick={() => update('preferred_time', time.key)}
-                          className={`p-4 rounded-xl border-2 text-center
-                          transition-all duration-200 hover:scale-105
-                          ${isSelected ? '' : 'bg-white border-gray-200'}`}
-                          style={isSelected
-                            ? { backgroundColor: '#062850', borderColor: '#062850' }
-                            : {}}
-                        >
-                          <div className="text-2xl mb-1">{time.emoji}</div>
-                          <div className={`font-semibold text-sm
-                          ${isSelected ? 'text-white' : 'text-gray-700'}`}>
-                            {time.key.split(' (')[0]}
-                          </div>
-                          <div className={`text-xs mt-0.5
-                          ${isSelected ? 'text-blue-200' : 'text-gray-500'}`}>
-                            {time.desc}
-                          </div>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold mb-1.5"
-                  style={{ color: '#062850' }}>
-                    Your Timezone *
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.timezone}
-                      onChange={e => update('timezone', e.target.value)}
-                      className="w-full px-4 py-3 pr-10 rounded-xl
-                      border border-gray-200 appearance-none text-sm
-                      focus:outline-none focus:ring-2 focus:ring-[#497296]"
-                    >
-                      <option value="">Select timezone...</option>
-                      {TIMEZONES.map(tz => (
-                        <option key={tz} value={tz}>{tz}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2
-                    -translate-y-1/2 w-4 h-4 text-gray-400
-                    pointer-events-none" />
-                  </div>
-                </div>
-
+                {/* GENERAL CLASS — fixed schedule slots */}
                 {formData.class_type === 'general' && (
-                  <div className="rounded-xl p-4 flex items-start gap-3"
-                  style={{ backgroundColor: '#FEF3C7' }}>
-                    <span className="text-xl flex-shrink-0">ℹ️</span>
-                    <p className="text-sm text-amber-800 leading-relaxed">
-                      <strong>General Class:</strong> You will be assigned
-                      to a class group based on your preferred time and
-                      availability. Our team will confirm your exact
-                      group within 24 hours.
-                    </p>
-                  </div>
+                  <>
+                    <div className="rounded-2xl p-5 flex items-start gap-4"
+                    style={{ backgroundColor: '#FEF3C7' }}>
+                      <span className="text-2xl flex-shrink-0">📋</span>
+                      <div>
+                        <p className="font-bold text-sm mb-1"
+                        style={{ color: '#92400E' }}>
+                          General Class — Fixed Schedule
+                        </p>
+                        <p className="text-sm text-amber-800 leading-relaxed">
+                          General classes run on fixed schedules. Select the
+                          session time that works best for you. You will be
+                          placed in a group with other learners studying the
+                          same subjects at the same level.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold mb-3"
+                      style={{ color: '#062850' }}>
+                        Choose Your Preferred Session *
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { key: 'Weekday Mornings',    emoji: '🌅', days: 'Monday, Wednesday, Friday', time: '9:00 AM - 11:00 AM',  tz: 'WAT / GMT' },
+                          { key: 'Weekday Afternoons',  emoji: '☀️', days: 'Monday, Wednesday, Friday', time: '2:00 PM - 4:00 PM',   tz: 'WAT / GMT' },
+                          { key: 'Weekday Evenings',    emoji: '🌆', days: 'Tuesday, Thursday',          time: '5:00 PM - 7:00 PM',   tz: 'WAT / GMT' },
+                          { key: 'Weekend Mornings',    emoji: '🌞', days: 'Saturday & Sunday',          time: '10:00 AM - 12:00 PM', tz: 'WAT / GMT' },
+                          { key: 'Weekend Afternoons',  emoji: '🏙️', days: 'Saturday & Sunday',          time: '2:00 PM - 4:00 PM',   tz: 'WAT / GMT' },
+                          { key: 'No Preference',       emoji: '💬', days: 'Any day',                    time: 'Averra assigns best fit', tz: '' },
+                        ].map(slot => {
+                          const isSelected = formData.preferred_time === slot.key
+                          return (
+                            <button
+                              key={slot.key}
+                              type="button"
+                              onClick={() => {
+                                update('preferred_time', slot.key)
+                                update('preferred_days', [slot.days])
+                              }}
+                              className={`p-5 rounded-2xl border-2 text-left
+                              transition-all duration-200 hover:scale-105
+                              ${isSelected ? '' : 'bg-white border-gray-200'}`}
+                              style={isSelected
+                                ? { backgroundColor: '#062850', borderColor: '#062850' }
+                                : {}}
+                            >
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className="text-2xl">{slot.emoji}</span>
+                                <p className={`font-bold text-sm
+                                ${isSelected ? 'text-white' : 'text-gray-800'}`}>
+                                  {slot.key}
+                                </p>
+                              </div>
+                              <p className={`text-xs mb-0.5
+                              ${isSelected ? 'text-blue-200' : 'text-gray-500'}`}>
+                                📅 {slot.days}
+                              </p>
+                              <p className={`text-xs font-semibold
+                              ${isSelected ? 'text-yellow-300' : 'text-[#062850]'}`}>
+                                🕛 {slot.time}
+                                {slot.tz && (
+                                  <span className={`ml-1 font-normal
+                                  ${isSelected ? 'text-blue-300' : 'text-gray-400'}`}>
+                                    ({slot.tz})
+                                  </span>
+                                )}
+                              </p>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold mb-1.5"
+                      style={{ color: '#062850' }}>
+                        Your Timezone *
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={formData.timezone}
+                          onChange={e => update('timezone', e.target.value)}
+                          className="w-full px-4 py-3 pr-10 rounded-xl
+                          border border-gray-200 appearance-none text-sm
+                          focus:outline-none focus:ring-2 focus:ring-[#497296]"
+                        >
+                          <option value="">Select timezone...</option>
+                          {TIMEZONES.map(tz => (
+                            <option key={tz} value={tz}>{tz}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2
+                        -translate-y-1/2 w-4 h-4 text-gray-400
+                        pointer-events-none" />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl p-4 flex items-start gap-3"
+                    style={{ backgroundColor: '#F0F6FB' }}>
+                      <span className="text-xl flex-shrink-0">📞</span>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        Our team will confirm your group placement and exact
+                        class link within <strong>24 hours</strong>.
+                      </p>
+                    </div>
+                  </>
                 )}
 
-                <div className="rounded-xl p-4 flex items-start gap-3"
-                style={{ backgroundColor: '#F0F6FB' }}>
-                  <span className="text-xl flex-shrink-0">📞</span>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    Our team will contact you within{' '}
-                    <strong>24 hours</strong> to confirm your exact
-                    timetable.
-                  </p>
-                </div>
+                {/* PRIVATE CLASS — custom day and time picker */}
+                {formData.class_type === 'private' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-bold mb-3"
+                      style={{ color: '#062850' }}>
+                        Preferred Days *
+                        <span className="text-gray-400 font-normal ml-1">
+                          (select all that apply)
+                        </span>
+                      </label>
+                      <div className="flex flex-wrap gap-3">
+                        {DAYS.map(day => {
+                          const isSelected = formData.preferred_days.includes(day)
+                          return (
+                            <button
+                              key={day}
+                              type="button"
+                              onClick={() => toggleDay(day)}
+                              className={`px-4 py-2.5 rounded-xl border-2
+                              font-medium text-sm transition-all duration-200
+                              hover:scale-105 ${isSelected
+                                ? 'text-white'
+                                : 'bg-white text-gray-600 border-gray-200'}`}
+                              style={isSelected
+                                ? { backgroundColor: '#062850', borderColor: '#062850' }
+                                : {}}
+                            >
+                              {day}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold mb-3"
+                      style={{ color: '#062850' }}>
+                        Preferred Time of Day *
+                      </label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {[
+                          { key: 'Morning (8am - 12pm)',   emoji: '🌅', desc: '8:00 AM - 12:00 PM' },
+                          { key: 'Afternoon (12pm - 4pm)', emoji: '☀️', desc: '12:00 PM - 4:00 PM' },
+                          { key: 'Evening (4pm - 8pm)',    emoji: '🌆', desc: '4:00 PM - 8:00 PM'  },
+                        ].map(time => {
+                          const isSelected = formData.preferred_time === time.key
+                          return (
+                            <button
+                              key={time.key}
+                              type="button"
+                              onClick={() => update('preferred_time', time.key)}
+                              className={`p-4 rounded-xl border-2 text-center
+                              transition-all duration-200 hover:scale-105
+                              ${isSelected ? '' : 'bg-white border-gray-200'}`}
+                              style={isSelected
+                                ? { backgroundColor: '#062850', borderColor: '#062850' }
+                                : {}}
+                            >
+                              <div className="text-2xl mb-1">{time.emoji}</div>
+                              <div className={`font-semibold text-sm
+                              ${isSelected ? 'text-white' : 'text-gray-700'}`}>
+                                {time.key.split(' (')[0]}
+                              </div>
+                              <div className={`text-xs mt-0.5
+                              ${isSelected ? 'text-blue-200' : 'text-gray-500'}`}>
+                                {time.desc}
+                              </div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold mb-1.5"
+                      style={{ color: '#062850' }}>
+                        Your Timezone *
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={formData.timezone}
+                          onChange={e => update('timezone', e.target.value)}
+                          className="w-full px-4 py-3 pr-10 rounded-xl
+                          border border-gray-200 appearance-none text-sm
+                          focus:outline-none focus:ring-2 focus:ring-[#497296]"
+                        >
+                          <option value="">Select timezone...</option>
+                          {TIMEZONES.map(tz => (
+                            <option key={tz} value={tz}>{tz}</option>
+                          ))}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2
+                        -translate-y-1/2 w-4 h-4 text-gray-400
+                        pointer-events-none" />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl p-4 flex items-start gap-3"
+                    style={{ backgroundColor: '#F0F6FB' }}>
+                      <span className="text-xl flex-shrink-0">📞</span>
+                      <p className="text-sm text-gray-600 leading-relaxed">
+                        Our team will contact you within{' '}
+                        <strong>24 hours</strong> to confirm your exact
+                        timetable.
+                      </p>
+                    </div>
+                  </>
+                )}
+
               </div>
             )}
 
