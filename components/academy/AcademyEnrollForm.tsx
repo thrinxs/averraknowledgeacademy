@@ -44,6 +44,7 @@ type FormData = {
   phone: string
   whatsapp: string
   country: string
+  country_of_origin: string
   date_of_birth: string
   relationship: string
   heard_from: string
@@ -332,7 +333,7 @@ export default function AcademyEnrollForm() {
   }
 
   // Currency based on applicant country
-  const currency = getCurrency(formData.country)
+  const currency = getCurrency(formData.country_of_origin || formData.country)
 
   // Price calculations
   const primaryLearner = formData.learners[0]
@@ -363,7 +364,8 @@ export default function AcademyEnrollForm() {
           formData.full_name.trim() &&
           formData.email.trim() &&
           formData.phone.trim() &&
-          formData.country.trim()
+          formData.country.trim() &&
+          formData.country_of_origin.trim()
         )
       case 2:
         return formData.learners.every(l =>
@@ -429,6 +431,7 @@ export default function AcademyEnrollForm() {
           phone: formData.phone,
           whatsapp: formData.whatsapp || formData.phone,
           country: formData.country,
+          country_of_origin: formData.country_of_origin || formData.country,
           date_of_birth: formData.date_of_birth || null,
           relationship: formData.applicant_type === 'parent'
             ? formData.relationship : null,
@@ -870,6 +873,43 @@ export default function AcademyEnrollForm() {
                       {currency === 'NGN'
                         ? '💰 Prices will be shown in ₦ (Naira) — payment via Paystack'
                         : '💰 Prices will be shown in £ (GBP) — payment via bank transfer'}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold mb-1.5"
+                  style={{ color: '#062850' }}>
+                    Country of Origin
+                    <span className="text-gray-400 font-normal ml-1">
+                      — used to determine payment currency
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.country_of_origin}
+                      onChange={e => update('country_of_origin', e.target.value)}
+                      className="w-full px-4 py-3 pr-10 rounded-xl
+                      border border-gray-200 appearance-none text-sm
+                      focus:outline-none focus:ring-2 focus:ring-[#497296]"
+                    >
+                      <option value="">Select country of origin...</option>
+                      {countries.map(c => (
+                        <option key={c.country_code} value={c.country_code}>
+                          {c.flag} {c.country_name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2
+                    -translate-y-1/2 w-4 h-4 text-gray-400
+                    pointer-events-none" />
+                  </div>
+                  {formData.country_of_origin && (
+                    <p className="text-xs mt-1.5"
+                    style={{ color: '#497296' }}>
+                      {getCurrency(formData.country_of_origin) === 'NGN'
+                        ? '💰 Payment in ₦ (Naira) via Paystack'
+                        : '💰 Payment in £ (GBP) via bank transfer'}
                     </p>
                   )}
                 </div>

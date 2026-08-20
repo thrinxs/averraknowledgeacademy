@@ -1046,3 +1046,228 @@ Then commit:
 ```bash
 git add AGENTS2.md && git commit -m "Add AGENTS2.md — documents all changes from last 5 days"
 ````
+
+---
+
+## 15. Curriculum Explorer — Full System (Built in this session)
+
+### 15.1 Curriculum Page
+
+File: `app/academy/curriculum/page.tsx`
+
+Dedicated page at `/academy/curriculum` with:
+
+- Hero section with navy gradient and wave divider
+- Back to Academy link
+- `<CurriculumExplorer />` component
+
+All links that previously pointed to `/academy#explorer` or `#explorer`
+now point to `/academy/curriculum`.
+
+### 15.2 CurriculumExplorer Component — Rebuilt
+
+File: `components/academy/CurriculumExplorer.tsx`
+
+Completely rebuilt. The component now:
+
+1. **Step 1 — Country selection:** Grid of 24 country flag buttons, fetched
+   from `academy_countries` where `is_active = true`. Shows curriculum name,
+   authority, and exam system badges.
+
+2. **Step 2 — Year group selection:** Grouped by stage (Primary, Junior
+   Secondary, Senior Secondary) with colour-coded buttons. Fetched from
+   `year_group_equivalencies`.
+
+3. **Step 3 — Subject list:** Shows all subjects for that country and year
+   group from `country_subjects`. Split into:
+
+   - ✅ Subjects Averra Teaches (green, clickable)
+   - ✖ Not Currently Taught by Averra (grey, not clickable)
+   - Summary stats: Total, Compulsory, Elective, Averra Teaches
+
+4. **Step 4 — Curriculum detail (when subject clicked):**
+   - Official curriculum link button (from `academy_countries.official_curriculum_url`)
+   - Two tabs: Local Curriculum / Averra Super Curriculum
+   - Local tab: fetches from `local_curricula` by country + year + subject
+   - Averra tab: fetches from `averra_super_curriculum` by `equivalent_uk_year` + subject (shared across all countries)
+   - Shows source contributions panel (7 world systems)
+   - Expandable units with topics and subtopics
+   - Competencies list
+   - "Coming soon" fallback with official link button when no content exists
+
+### 15.3 Database Tables — Curriculum
+
+#### academy_countries — Updated columns
+
+New columns added:
+
+- `curriculum_authority` (text)
+- `official_curriculum_url` (text) — stores the official government
+  curriculum website URL per country
+
+All 24 active countries have `official_curriculum_url` set.
+
+#### year_group_equivalencies — Updated columns
+
+New columns added:
+
+- `stage` (text) — values: 'primary', 'junior_secondary', 'senior_secondary'
+- `equivalent_uk_year` (text) — UK year equivalent used as shared key for
+  Averra Super Curriculum lookup
+- `sort_order` (integer) — display ordering
+
+Unique constraint added: `(country_code, year_group_code)`
+
+#### country_subjects — New table
+
+Stores which subjects are taught in each country for each year group.
+
+| Column              | Type    | Notes                                    |
+| ------------------- | ------- | ---------------------------------------- |
+| id                  | uuid    | PK                                       |
+| country_code        | text    | FK to academy_countries                  |
+| year_group_code     | text    |                                          |
+| subject_code        | text    | country-specific code e.g. 'NG_MATH'     |
+| subject_name        | text    | display name                             |
+| subject_type        | text    | 'compulsory' or 'elective'               |
+| averra_teaches      | boolean | whether Averra currently teaches this    |
+| averra_subject_code | text    | nullable, maps to Averra's internal code |
+
+Unique constraint: `(country_code, year_group_code, subject_code)`
+RLS: public read enabled.
+
+#### local_curricula — Existing table, now used
+
+Key columns (verified against actual schema):
+
+- `country_code`, `year_group_code`, `subject_code` — lookup keys
+- `subject` (text, NOT NULL) — display name
+- `topics` (jsonb, NOT NULL) — array of units with topics and subtopics
+- `competencies` (jsonb) — by_end_of_year array
+- `source_url` (text) — official curriculum URL per record
+
+Unique constraint added: `(country_code, year_group_code, subject_code)`
+
+**Important:** The column is `topics` NOT `units`. The column is `subject`
+NOT `subject_name`. Always use the correct column names.
+
+#### averra_super_curriculum — Existing table, now used
+
+Key columns:
+
+- `year_group_code` (text) — uses `equivalent_uk_year` values (e.g. 'Year 1',
+  'Year 7', 'Reception') as shared keys across all countries
+- `subject_code` (text) — e.g. 'MATH', 'ENG'
+- `subject` (text) — display name
+- `topics` (jsonb) — array of units with topics and subtopics
+- `source_contributions` (jsonb) — object mapping country system names to
+  arrays of contribution descriptions
+- `competencies` (jsonb) — by_end_of_year array
+- `country_code` (text, nullable) — not used for filtering; Averra curriculum
+  is shared across all countries
+
+Unique constraint: `(year_group_code, subject_code)`
+
+**Important:** `country_code` was made nullable. The Averra Super Curriculum
+is NOT per country — it is one unified curriculum per year level per subject,
+shared across all 24 countries. The component queries WITHOUT country_code
+filter.
+
+### 15.4 Countries — 24 Active
+
+All 24 countries are active with year groups, subjects, and official URLs:
+
+Super Curriculum source countries (7):
+
+- England (GB), Japan (JP), Estonia (EE), Canada (CA), Nigeria (NG),
+  Singapore (SG), Finland (FI)
+
+Additional countries (6):
+
+- Ghana (GH), South Africa (ZA), Kenya (KE), Australia (AU),
+  Ireland (IE), India (IN)
+
+European countries (11):
+
+- Belgium (BE), Denmark (DK), France (FR), Italy (IT), Netherlands (NL),
+  Norway (NO), Portugal (PT), Qatar (QA), Saudi Arabia (SA), Spain (ES),
+  Sweden (SE)
+
+Deactivated countries (not shown in explorer):
+
+- UAE (AE), Germany (DE), USA (US)
+
+### 15.5 Curriculum Content Seeded
+
+**local_curricula seeded for Mathematics only:**
+
+- Nigeria (NG) — all 12 year groups (Primary 1 through SS 3)
+- England (GB) — all 14 year groups (Reception through Year 13)
+- Ghana (GH) — all 12 year groups (Primary 1 through SHS 3)
+- Kenya (KE) — all 12 year groups (Grade 1 through Grade 12)
+- South Africa (ZA) — all 12 year groups (Grade 1 through Grade 12)
+
+**averra_super_curriculum seeded for Mathematics only:**
+
+- All 14 year levels (Reception through Year 13)
+- Each entry includes full topics, subtopics, competencies, and
+  source_contributions from all 7 systems
+
+**All other subjects for all countries:** Not yet seeded. The official
+curriculum link button covers this gap — parents can click through to
+the government website for any subject.
+
+### 15.6 Equivalent UK Year Lookup
+
+The Averra Super Curriculum uses `equivalent_uk_year` as the shared lookup
+key. When a user selects any country and year group, the component:
+
+1. Fetches `equivalent_uk_year` from `year_group_equivalencies`
+2. Uses that value to query `averra_super_curriculum`
+3. This means one Averra entry covers all 24 countries at the same level
+
+Example: Nigeria Primary 3 → equivalent_uk_year = 'Year 3' →
+fetches Averra Year 3 Mathematics → same content shown for England Year 3,
+Ghana Primary 3, India Class 3, etc.
+
+### 15.7 SQL Files Generated
+
+The following SQL seed files were generated during this session. They are
+saved in the project root but should NOT be committed to git. Add them
+to .gitignore:
+
+- supabase_curriculum_seed.sql
+- supabase_fix_countries.sql
+- supabase_year_groups.sql
+- supabase_subjects.sql
+- supabase_source_urls.sql
+- supabase_country_urls.sql
+- supabase_math_ng_gb.sql
+- supabase_math_gh_ke_za.sql
+- supabase_averra_math.sql
+- supabase_11_countries.sql
+- supabase_cleanup.sql
+- supabase_fix_countries.sql
+- supabase_deactivate_empty.sql
+- fix_averra_structure.sql
+- fix_averra_table.sql
+- fix_lc_constraint.sql
+- check\_\*.sql
+
+### 15.8 Coding Rules — Curriculum
+
+- Always use `topics` column in `local_curricula`, never `units`
+- Always include `subject` column (NOT NULL) when inserting into
+  `local_curricula`
+- Always use dollar-quoting (`$topics$...$topics$`) for JSON content
+  in SQL to avoid single-quote escaping issues
+- Averra Super Curriculum is shared across all countries — never filter
+  by `country_code` when querying it
+- Use `equivalent_uk_year` from `year_group_equivalencies` as the lookup
+  key for `averra_super_curriculum`
+- Official curriculum URLs are stored at country level in
+  `academy_countries.official_curriculum_url` — always shown regardless
+  of whether local_curricula content exists
+- When seeding curriculum content, use Python with `json.dumps()` and
+  dollar-quoting to generate SQL — never write raw JSON in SQL strings
+  (single quotes in content will break the query)
