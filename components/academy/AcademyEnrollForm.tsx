@@ -229,6 +229,7 @@ const initialFormData: FormData = {
   phone: '',
   whatsapp: '',
   country: '',
+  country_of_origin: '',
   date_of_birth: '',
   relationship: 'Parent',
   heard_from: '',
