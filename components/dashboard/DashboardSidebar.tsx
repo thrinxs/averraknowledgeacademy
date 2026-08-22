@@ -11,6 +11,7 @@ import {
   Bell,
   MessageSquare,
   User,
+  Settings,
   LogOut,
   Menu,
   X,
@@ -18,6 +19,7 @@ import {
   BookOpen,
   Briefcase,
   School,
+  Settings,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -210,8 +212,7 @@ export default function DashboardSidebar({
           icon: User,
           badge: 0,
         },
-    { href: '/dashboard/settings', icon: '⚙️', label: 'Settings' },
-      ],
+    
     },
   ]
 
