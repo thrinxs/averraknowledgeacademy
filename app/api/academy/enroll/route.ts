@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       date_of_birth,
       relationship,
       learners,
-      learning_format,
+      learning_format, class_type,
       lesson_duration,
       lessons_per_week,
       preferred_days,
