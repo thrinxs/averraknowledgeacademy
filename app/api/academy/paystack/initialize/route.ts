@@ -36,6 +36,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Resolve email — fall back to profiles table if enrollment.email is empty
+    let paymentEmail = enrollment.email || ''
+    if (!paymentEmail && enrollment.parent_id) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', enrollment.parent_id)
+        .single()
+      paymentEmail = profile?.email || ''
+    }
+
+    if (!paymentEmail) {
+      return NextResponse.json(
+        { error: 'No email address found for this enrollment' },
+        { status: 400 }
+      )
+    }
+
     if (enrollment.payment_status === 'paid') {
       return NextResponse.json(
         { error: 'This enrollment has already been paid' },
@@ -57,7 +75,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: enrollment.email,
+        email: paymentEmail,
         amount: amountInKobo,
         reference,
         callback_url: callbackUrl,
