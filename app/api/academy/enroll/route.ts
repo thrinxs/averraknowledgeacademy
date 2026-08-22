@@ -179,6 +179,7 @@ export async function POST(request: NextRequest) {
               learner.learning_challenges || null,
             school_name: learner.school_name || null,
             is_self_enrolled: applicant_type === 'student',
+            learning_format: class_type,
             status: 'pending',
           })
 
