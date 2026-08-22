@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
       message: 'Account created successfully',
       userId,
       enrollment_id: enrollment?.id || '',
-      currency,
+      currency: enrollment?.currency || 'GBP',
       billing_amount,
     })
 
