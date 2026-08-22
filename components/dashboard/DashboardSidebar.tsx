@@ -211,13 +211,13 @@ export default function DashboardSidebar({
           icon: User,
           badge: 0,
         },
-          {
-            label: 'Settings',
-            href: '/dashboard/settings',
-            icon: Settings,
-            badge: 0,
-          },
-    
+        {
+          label: 'Settings',
+          href: '/dashboard/settings',
+          icon: Settings,
+          badge: 0,
+        },
+      ],
     },
   ]
 
