@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
             year_group_label: learner.year_group_label,
             subjects: learner.subjects,
             subject_codes: learner.subjects,
-            learning_format,
+            learning_format: class_type,
             lesson_duration,
             lessons_per_week,
             preferred_days,
@@ -179,7 +179,6 @@ export async function POST(request: NextRequest) {
               learner.learning_challenges || null,
             school_name: learner.school_name || null,
             is_self_enrolled: applicant_type === 'student',
-            learning_format: class_type,
             status: 'pending',
           })
 
