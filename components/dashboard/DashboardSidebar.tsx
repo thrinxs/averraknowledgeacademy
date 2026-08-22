@@ -210,6 +210,7 @@ export default function DashboardSidebar({
           icon: User,
           badge: 0,
         },
+    { href: '/dashboard/settings', icon: '⚙️', label: 'Settings' },
       ],
     },
   ]

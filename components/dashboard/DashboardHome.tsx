@@ -1,4 +1,5 @@
 'use client'
+import ProfileIncompleteModal from '@/components/dashboard/ProfileIncompleteModal'
 
 import Link from 'next/link'
 import {
@@ -37,6 +38,8 @@ export default function DashboardHome({
     preferences?.payment_status || null
 
   return (
+    <>
+    {profile && <ProfileIncompleteModal profile={profile as Record<string, unknown>} />}
     <div className="p-6 md:p-10 max-w-5xl mx-auto">
 
       {/* Welcome */}
