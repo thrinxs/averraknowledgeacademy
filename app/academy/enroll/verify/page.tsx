@@ -1,16 +1,46 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 
-export const metadata = {
-  title: 'Enrolment Registered — Averra Academy',
-}
-
 export default function AcademyVerifyPage() {
+  const [mounted, setMounted] = useState(false)
+  const [enrollmentId, setEnrollmentId] = useState('')
+  const [currency, setCurrency] = useState('GBP')
+  const [billingAmount, setBillingAmount] = useState(0)
+  const router = useRouter()
+
+  useEffect(() => {
+    setMounted(true)
+    const id = localStorage.getItem('academy_enrollment_id') || ''
+    const cur = localStorage.getItem('academy_currency') || 'GBP'
+    const amt = localStorage.getItem('academy_billing_amount') || '0'
+    setEnrollmentId(id)
+    setCurrency(cur)
+    setBillingAmount(Number(amt))
+  }, [])
+
+  function handlePayNow() {
+    const params = new URLSearchParams({
+      enrollment_id: enrollmentId,
+      currency,
+      amount: String(billingAmount),
+    })
+    router.push(`/academy/enroll/payment?${params.toString()}`)
+  }
+
+  if (!mounted) return null
+
+  const formattedAmount = currency === 'NGN'
+    ? `₦${billingAmount.toLocaleString()}`
+    : `£${billingAmount.toLocaleString()}`
+
   return (
     <div
-      className="min-h-screen flex items-center
-      justify-center py-12 px-4"
+      className="min-h-screen flex items-center justify-center py-12 px-4"
       style={{ backgroundColor: '#F0F6FB' }}
     >
       <div className="max-w-md w-full text-center">
@@ -26,147 +56,78 @@ export default function AcademyVerifyPage() {
         </Link>
 
         <div
-          className="w-20 h-20 rounded-full flex
-          items-center justify-center mx-auto mb-6
-          text-3xl"
+          className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl"
           style={{ backgroundColor: '#062850' }}
         >
           🎉
         </div>
 
-        <h1
-          className="text-2xl md:text-3xl font-bold mb-3"
-          style={{ color: '#062850' }}
-        >
+        <h1 className="text-2xl md:text-3xl font-bold mb-3" style={{ color: '#062850' }}>
           Enrolment Registered!
         </h1>
 
         <p className="text-gray-600 mb-6 leading-relaxed">
           Your account has been created successfully.
-          Please make your payment to activate your
-          dashboard and begin your classes.
+          Complete your payment to activate your dashboard and begin classes.
         </p>
 
+        {billingAmount > 0 && (
+          <div
+            className="rounded-2xl p-4 mb-6 border-2"
+            style={{ borderColor: '#497296', backgroundColor: '#EBF4FF' }}
+          >
+            <p className="text-sm text-gray-500 mb-1">Amount Due</p>
+            <p className="text-3xl font-bold" style={{ color: '#062850' }}>
+              {formattedAmount}
+            </p>
+          </div>
+        )}
+
         <div
-          className="rounded-2xl p-6 mb-6 text-left
-          space-y-3"
+          className="rounded-2xl p-6 mb-6 text-left space-y-3"
           style={{ backgroundColor: '#062850' }}
         >
-          <h3 className="font-bold text-white text-sm mb-4">
-            What to do now:
-          </h3>
+          <h3 className="font-bold text-white text-sm mb-4">What to do now:</h3>
           {[
-            'Make your bank transfer using the payment details below',
+            'Click Pay Now to choose your payment method',
+            'Complete your payment via card, GBP or EUR bank transfer',
             'Send your payment proof to our WhatsApp',
             'We activate your dashboard within 2 hours',
-            'We contact you within 24 hours to confirm your timetable',
-            'Your classes begin!',
+            'Classes begin within 48 hours of timetable confirmation',
           ].map((item, i) => (
             <div key={i} className="flex items-start gap-3">
               <div
-                className="w-6 h-6 rounded-full flex
-                items-center justify-center text-xs
-                font-bold text-white flex-shrink-0 mt-0.5"
+                className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 mt-0.5"
                 style={{ backgroundColor: '#497296' }}
               >
                 {i + 1}
               </div>
-              <p className="text-blue-200 text-sm leading-relaxed">
-                {item}
-              </p>
+              <p className="text-blue-200 text-sm leading-relaxed">{item}</p>
             </div>
           ))}
-        </div>
-
-        <div
-          className="rounded-2xl p-6 mb-6 text-left border-2"
-          style={{
-            borderColor: '#497296',
-            backgroundColor: '#F0F6FB',
-          }}
-        >
-          <p
-            className="font-bold mb-4"
-            style={{ color: '#062850' }}
-          >
-            🏦 Payment Details (GBP)
-          </p>
-          {[
-            ['Account Name', 'Baridubari Joshua Joe-Amos'],
-            ['Account Number', '35651420'],
-            ['Sort Code', '04-13-07'],
-            ['IBAN', 'GB68CLJU0413073565420'],
-            ['Bank', 'Grey (UK Account)'],
-          ].map(([label, value]) => (
-            <div
-              key={label}
-              className="flex justify-between items-center
-              py-2 border-b border-gray-100 last:border-0"
-            >
-              <span className="text-sm text-gray-500">
-                {label}
-              </span>
-              <span
-                className="text-sm font-bold font-mono"
-                style={{ color: '#062850' }}
-              >
-                {value}
-              </span>
-            </div>
-          ))}
-          <div
-            className="mt-4 p-3 rounded-xl text-center
-            border-2 border-dashed"
-            style={{ borderColor: '#497296' }}
-          >
-            <p className="text-xs text-gray-500 mb-1">
-              Use this as your payment reference
-            </p>
-            <p
-              className="font-bold font-mono"
-              style={{ color: '#062850' }}
-            >
-              AVERRA-ACAD
-            </p>
-          </div>
         </div>
 
         <div className="space-y-3">
-          <a
-            href="https://wa.me/2349033440966"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Button
+            onClick={handlePayNow}
+            className="w-full text-white font-semibold py-3 rounded-xl text-base"
+            style={{ backgroundColor: '#497296' }}
           >
-            <Button
-              className="w-full text-white font-semibold
-              py-3 rounded-xl"
-              style={{ backgroundColor: '#16A34A' }}
-            >
-              💬 Send Payment Proof on WhatsApp
-            </Button>
-          </a>
+            💳 Pay Now — {formattedAmount || 'Complete Payment'}
+          </Button>
+
           <Link href="/dashboard/academy">
             <Button
-              className="w-full text-white font-semibold
-              py-3 rounded-xl mt-2"
-              style={{ backgroundColor: '#062850' }}
-            >
-              Go to My Dashboard →
-            </Button>
-          </Link>
-          <Link href="/academy">
-            <Button
               variant="outline"
-              className="w-full py-3 rounded-xl"
+              className="w-full py-3 rounded-xl mt-2 text-sm"
             >
-              Back to Academy Page
+              Skip for now — Pay from My Dashboard →
             </Button>
           </Link>
         </div>
 
         <p className="text-xs text-gray-400 mt-6">
-          Questions? WhatsApp us on +234 903 344 0966
-          or email info@averraknowledgeacademy.com
+          Questions? WhatsApp us on +234 903 344 0966 or email info@averraknowledgeacademy.com
         </p>
 
       </div>

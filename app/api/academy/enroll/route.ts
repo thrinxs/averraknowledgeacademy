@@ -194,6 +194,9 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Account created successfully',
       userId,
+      enrollment_id: enrollment?.id || '',
+      currency,
+      billing_amount,
     })
 
   } catch (error) {
