@@ -1,0 +1,66 @@
+90c96ff (HEAD -> main, origin/main) Trigger redeploy
+61c5e75 Fix: add country_of_origin to initialFormData
+fff6537 General class fixed schedule slots, private class custom picker
+6ca1003 Enrolment — add country of origin field, fix UK country name
+ed73da4 Curriculum Explorer — official curriculum URLs for all 24 countries
+bb16c7e Curriculum Explorer — official government curriculum links added for all subjects
+0bf483b Averra Super Curriculum — Mathematics seeded for all year levels Reception to Year 13
+d8e13a8 Fix CurriculumExplorer — query topics column not units
+9252a7f Curriculum Explorer — Mathematics curriculum seeded for Nigeria, England, Ghana, Kenya, South Africa
+64ed5b9 Curriculum Explorer — 24 countries, full year groups and subjects seeded
+f26351f Curriculum Explorer — 13 active countries, deactivated empty legacy countries
+4efd0a6 Curriculum Explorer — 13 countries, clean year groups, full subject lists
+4d2328c Curriculum Explorer — rebuilt with 13 countries, year groups, subject lists, Averra teaches flags
+5343f84 Junior Academy — student photos pop above cards, text shadows added
+74e7059 Academy — Junior Academy, 6 divisions, enrolment form, pricing, admin pages, dashboard rebuild
+7808588 Fix onError build error — extract StudentImage client component
+24a9dc0 Update student image extensions to png
+3a7ee5d Add floating school animations to Junior Academy hero
+dd8cd1c Update Junior Academy tagline
+01c48cf Make Junior Academy card global and inclusive
+462d37d Add Smarter Than Einstein tooltip across academy pages
+ab865bb Complete academy homepage redesign — general copy, library, why choose, how it works
+22fb6fe Update academy hero — general copy, add library section
+f55e13b Fix icon style prop TypeScript error
+153a328 Premium academy hub — all 6 divisions, custom SVG icons, animations
+6f818c3 Fix apostrophe in JSX string
+7e6daaf Complete academy pricing rewrite — NGN/GBP, private/general, bundles
+bcf133b Fix params await for Next.js 16
+45c8b5b Add manage enrollment detail page
+b061c6d Fix subject names on academy page
+cd91113 Fix all admin pages to use service role key
+f311485 Fix admin layout — use service role key to bypass RLS
+bae4fbd Rebuild login clean, remove middleware
+aa8e33f Fix redirect loop and admin routing
+ba5f0a9 Add middleware for role-based dashboard routing
+b6615e0 Create auth role API route
+78b9ccf Fix duplicate data variable in LoginForm
+87dac05 Add delay before role fetch to allow session cookie to set
+cae6e13 Fix role redirect using server-side API route
+bfe25a7 Fix login role-based redirect
+833f330 Fix login copy and cleanup
+9dcce27 Fix login redirect — let server layout handle role routing
+335abcc Fix admin login redirect
+da6855d Rewrite dashboard home — all services, improved copy
+abde73c Remove email verification block on login
+184203f Update verify page — remove email confirmation dependency
+ef98635 Auto confirm academy accounts
+4bd38ec Fix all TypeScript type cast errors
+cb0beff Add parent/student enrollment flows, academy dashboard sections
+095c945 feat: complete blog system with admin editor, ads, SEO, and sitemap
+3ac3b77 fix: slightly increase favicon width
+8187e5f fix: widen favicon viewBox for full logo visibility
+cb2c990 feat: apply duotone icon style across homepage and contact page
+b1ed2dc feat: new homepage, scholarship page, and contact page
+a410f3f trigger: force rebuild after env var update
+65f2fa4 trigger: force rebuild after env var update
+07518e3 fix: remove stray frontend folder causing Vercel routing conflict
+f610e3e trigger: force fresh vercel build
+33ee29b fix: lazy supabase client via Proxy — fixes runtime 404
+e4dcf0b fix: add RESEND_API_KEY env var
+ee4f3d1 fix: lazy Resend instantiation to prevent build crash
+c4ba166 fix: convert blog page to server component, protect scholarship/apply route
+8bd60ea Trigger redeploy with env vars
+fcff876 Fix: change generateLink type from signup to magiclink
+2f6f5a0 Add careers, academy, blog, about, earn pages — fix matching algorithm, footer, nav links
+6d2434f Initial commit from Create Next App

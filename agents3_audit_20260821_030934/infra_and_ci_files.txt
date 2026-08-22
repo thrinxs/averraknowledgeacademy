@@ -1,0 +1,6 @@
+./vercel.json
+./node_modules/node-exports-info/.github
+./node_modules/reusify/.github
+./node_modules/define-data-property/.github
+./node_modules/is-bigint/.github
+./node_modules/which-boxed-primitive/.github

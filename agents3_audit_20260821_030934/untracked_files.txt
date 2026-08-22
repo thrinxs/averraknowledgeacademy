@@ -1,0 +1,5 @@
+agents3_audit_20260821_030934/git_log_last80.txt
+agents3_audit_20260821_030934/git_status.txt
+agents3_audit_20260821_030934/meta.md
+agents3_audit_20260821_030934/untracked_files.txt
+make-agents3-report.sh
