@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
@@ -27,7 +27,7 @@ const EUR_DETAILS = [
 
 type PaymentMethod = 'card' | 'gbp' | 'eur' | null
 
-export default function AcademyPaymentPage() {
+function AcademyPaymentInner() {
   const [mounted, setMounted] = useState(false)
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null)
   const [reference, setReference] = useState('AVERRA-ACAD')
@@ -348,6 +348,22 @@ export default function AcademyPaymentPage() {
 
       </div>
     </div>
+  )
+}
+
+
+export default function AcademyPaymentPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#F0F6FB' }}>
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-4 border-[#497296] border-t-transparent animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 text-sm">Loading payment page...</p>
+        </div>
+      </div>
+    }>
+      <AcademyPaymentInner />
+    </Suspense>
   )
 }
 
