@@ -50,7 +50,6 @@ export default function DashboardSidebar({
   onMobileClose,
 }: SidebarProps) {
   const [mounted, setMounted] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [unreadNotifs, setUnreadNotifs] = useState(0)
   const [unreadMessages, setUnreadMessages] = useState(0)
   const [hasAcademy, setHasAcademy] = useState(false)
