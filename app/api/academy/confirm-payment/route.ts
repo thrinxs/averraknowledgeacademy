@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { sendPaymentConfirmedEmail } from '@/lib/academy-emails'
 import { createSupabaseServerClient } from
   '@/lib/supabase-server'
 
@@ -126,6 +127,24 @@ export async function POST(request: NextRequest) {
           'Thank you for choosing Averra Academy! 🎓',
         is_read: false,
       })
+
+    // Send payment confirmed email to parent
+    try {
+      const profile = Array.isArray(enrollment.profiles)
+        ? enrollment.profiles[0]
+        : enrollment.profiles
+      if (profile?.email) {
+        await sendPaymentConfirmedEmail({
+          to: profile.email,
+          parentName: profile.full_name || 'there',
+          currency: enrollment.currency || 'GBP',
+          billingAmount: enrollment.billing_amount || 0,
+          paymentMethod: 'bank_transfer',
+        })
+      }
+    } catch (emailErr) {
+      console.error('Payment confirmed email error (non-fatal):', emailErr)
+    }
 
     return NextResponse.redirect(
       new URL(

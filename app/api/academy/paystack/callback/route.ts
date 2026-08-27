@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { sendPaymentConfirmedEmail } from '@/lib/academy-emails'
 
 function getAdminClient() {
   return createClient(
@@ -60,6 +61,27 @@ export async function GET(request: NextRequest) {
       .from('academy_children')
       .update({ status: 'active' })
       .eq('enrollment_id', enrollmentId)
+
+    // Send payment confirmed email
+    try {
+      const { data: enrollment } = await supabase
+        .from('academy_enrollments')
+        .select('email, full_name, currency, billing_amount')
+        .eq('id', enrollmentId)
+        .single()
+
+      if (enrollment?.email) {
+        await sendPaymentConfirmedEmail({
+          to: enrollment.email,
+          parentName: enrollment.full_name || 'there',
+          currency: enrollment.currency || 'NGN',
+          billingAmount: enrollment.billing_amount || 0,
+          paymentMethod: 'paystack',
+        })
+      }
+    } catch (emailErr) {
+      console.error('Payment confirmed email error (non-fatal):', emailErr)
+    }
 
     return NextResponse.redirect(
       new URL('/dashboard/academy?payment=success', request.url)

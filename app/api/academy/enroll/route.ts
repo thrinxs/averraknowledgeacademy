@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import {
+  sendEnrollmentWelcomeEmail,
+  sendAdminEnrollmentAlert,
+} from '@/lib/academy-emails'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -188,6 +192,36 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
+    }
+
+    // Send emails (non-blocking — do not fail enrollment if email fails)
+    try {
+      const learnerNames = learners.map((l: { full_name?: string }) =>
+        applicant_type === 'student' ? full_name : (l.full_name || 'Learner')
+      )
+      await Promise.all([
+        sendEnrollmentWelcomeEmail({
+          to: email,
+          parentName: full_name,
+          currency: body.currency || 'GBP',
+          billingAmount: billing_amount,
+          billingPeriod: billing_period,
+          classType: class_type,
+          learnerNames,
+        }),
+        sendAdminEnrollmentAlert({
+          parentName: full_name,
+          parentEmail: email,
+          currency: body.currency || 'GBP',
+          billingAmount: billing_amount,
+          billingPeriod: billing_period,
+          classType: class_type,
+          learnerCount: learners.length,
+          enrollmentId: enrollment?.id || '',
+        }),
+      ])
+    } catch (emailErr) {
+      console.error('Email send error (non-fatal):', emailErr)
     }
 
     return NextResponse.json({
