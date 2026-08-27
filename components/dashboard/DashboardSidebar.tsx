@@ -115,7 +115,6 @@ export default function DashboardSidebar({
     return () => { notifSub.unsubscribe() }
   }, [mounted])
 
-  useEffect(() => { setMobileOpen(false) }, [pathname])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -439,7 +438,7 @@ export default function DashboardSidebar({
             </Link>
           )}
           <button
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={() => onMobileClose?.()}
             className="text-white p-2"
           >
             {mobileOpen
@@ -456,7 +455,7 @@ export default function DashboardSidebar({
           <div
             className="lg:hidden fixed inset-0 z-40
             bg-black/50"
-            onClick={() => setMobileOpen(false)}
+            onClick={() => onMobileClose?.()}
           />
           <aside
             className="lg:hidden fixed inset-y-0
