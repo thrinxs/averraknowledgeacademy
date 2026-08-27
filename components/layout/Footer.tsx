@@ -14,7 +14,8 @@ export default function Footer() {
     pathname.startsWith('/admin/dashboard') ||
     pathname.startsWith('/staff/dashboard') ||
     pathname.startsWith('/affiliate/dashboard') ||
-    pathname.startsWith('/trainer/dashboard')
+    pathname.startsWith('/trainer/dashboard') ||
+    pathname.startsWith('/academy/enroll')
 
   if (isDashboard) return null
 
