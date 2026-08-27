@@ -13,8 +13,6 @@ import {
   User,
   Settings,
   LogOut,
-  Menu,
-  X,
   ChevronRight,
   BookOpen,
   Briefcase,
@@ -401,53 +399,6 @@ export default function DashboardSidebar({
         {sidebarContent}
       </aside>
 
-      {/* Mobile Header */}
-      <div
-        className="lg:hidden fixed top-0 left-0
-        right-0 z-50 flex items-center
-        justify-between px-4 h-16"
-        style={{ backgroundColor: '#062850' }}
-      >
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/footer-logo.png"
-            alt="Averra"
-            width={32}
-            height={32}
-            className="object-contain"
-          />
-          <span className="text-sm font-bold text-white">
-            Averra
-          </span>
-        </Link>
-        <div className="flex items-center gap-3">
-          {unreadNotifs > 0 && (
-            <Link href="/dashboard/notifications">
-              <div className="relative">
-                <Bell className="w-5 h-5 text-blue-200" />
-                <span
-                  className="absolute -top-1 -right-1
-                  w-4 h-4 rounded-full text-xs font-bold
-                  text-white flex items-center
-                  justify-center"
-                  style={{ backgroundColor: '#DC2626' }}
-                >
-                  {unreadNotifs > 9 ? '9+' : unreadNotifs}
-                </span>
-              </div>
-            </Link>
-          )}
-          <button
-            onClick={() => onMobileClose?.()}
-            className="text-white p-2"
-          >
-            {mobileOpen
-              ? <X className="w-6 h-6" />
-              : <Menu className="w-6 h-6" />
-            }
-          </button>
-        </div>
-      </div>
 
       {/* Mobile Overlay */}
       {mobileOpen && (
@@ -467,7 +418,6 @@ export default function DashboardSidebar({
         </>
       )}
 
-      <div className="lg:hidden h-20" />
     </>
   )
 }
