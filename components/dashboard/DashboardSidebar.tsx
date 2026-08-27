@@ -26,6 +26,8 @@ interface SidebarProps {
   fullName: string
   email: string
   avatarUrl: string | null
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
 type NavSection = {
@@ -44,6 +46,8 @@ export default function DashboardSidebar({
   fullName,
   email,
   avatarUrl,
+  mobileOpen = false,
+  onMobileClose,
 }: SidebarProps) {
   const [mounted, setMounted] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
