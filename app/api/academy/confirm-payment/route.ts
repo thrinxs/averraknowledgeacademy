@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       .from('academy_enrollments')
       .select(`
         id, parent_id, billing_period,
-        billing_amount,
+        billing_amount, currency,
         profiles!parent_id (
           full_name, email
         )
