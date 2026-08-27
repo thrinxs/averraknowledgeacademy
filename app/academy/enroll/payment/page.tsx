@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Copy, Check, Loader2 } from 'lucide-react'
+import ExchangeRateDisplay from '@/components/academy/ExchangeRateDisplay'
 
 const GBP_DETAILS = [
   { label: 'Account Name', value: 'Baridubari Joshua Joe-Amos' },
@@ -34,19 +35,21 @@ function AcademyPaymentInner() {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [loadingPaystack, setLoadingPaystack] = useState(false)
   const [error, setError] = useState('')
+  const [ngnAmount, setNgnAmount] = useState(0)
 
   const searchParams = useSearchParams()
   const enrollmentId = searchParams.get('enrollment_id') || ''
   const currency = searchParams.get('currency') || 'GBP'
   const amount = Number(searchParams.get('amount') || 0)
+  const preloadedNgn = Number(searchParams.get('ngn_amount') || 0)
   const isNGN = currency === 'NGN'
 
-  const formattedAmount = isNGN
-    ? `₦${amount.toLocaleString()}`
-    : `£${amount.toLocaleString()}`
+  const symbol = isNGN ? '₦' : currency === 'GBP' ? '£' : '€'
+  const formattedAmount = `${symbol}${amount.toLocaleString()}`
 
   useEffect(() => {
     setMounted(true)
+    if (preloadedNgn > 0) setNgnAmount(preloadedNgn)
     if (!enrollmentId) {
       const id = localStorage.getItem('academy_enrollment_id')
       if (id) {
@@ -60,7 +63,11 @@ function AcademyPaymentInner() {
         window.location.replace(`/academy/enroll/payment?${params.toString()}`)
       }
     }
-  }, [enrollmentId])
+  }, [enrollmentId, preloadedNgn])
+
+  const handleRateLoaded = useCallback((ngn: number) => {
+    setNgnAmount(ngn)
+  }, [])
 
   const copyToClipboard = useCallback((value: string, field: string) => {
     navigator.clipboard.writeText(value)
@@ -75,7 +82,10 @@ function AcademyPaymentInner() {
       const res = await fetch('/api/academy/paystack/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enrollment_id: enrollmentId }),
+        body: JSON.stringify({
+          enrollment_id: enrollmentId,
+          ngn_amount: isNGN ? amount : ngnAmount,
+        }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to initialize payment')
@@ -88,8 +98,17 @@ function AcademyPaymentInner() {
 
   if (!mounted) return null
 
+  const paystackButtonLabel = isNGN
+    ? `Pay ${formattedAmount} Now →`
+    : ngnAmount > 0
+    ? `Pay ≈ ₦${ngnAmount.toLocaleString()} Now →`
+    : 'Pay Now →'
+
   return (
-    <div className="min-h-screen py-12 px-4" style={{ backgroundColor: '#F0F6FB' }}>
+    <div
+      className="min-h-screen py-12 px-4"
+      style={{ backgroundColor: '#F0F6FB' }}
+    >
       <div className="max-w-2xl mx-auto">
 
         {/* Header */}
@@ -112,8 +131,10 @@ function AcademyPaymentInner() {
           <p className="text-gray-500 text-sm">
             {isNGN
               ? 'Pay securely via Paystack to activate your enrolment.'
-              : 'Send your payment via bank transfer to activate your enrolment.'}
+              : 'Choose your preferred payment method below.'}
           </p>
+
+          {/* Amount due */}
           {amount > 0 && (
             <div
               className="inline-block mt-4 px-6 py-3 rounded-2xl border-2"
@@ -123,9 +144,25 @@ function AcademyPaymentInner() {
               <p className="text-2xl font-bold" style={{ color: '#062850' }}>
                 {formattedAmount}
               </p>
+              {!isNGN && ngnAmount > 0 && (
+                <p className="text-xs text-gray-500 mt-1">
+                  ≈ ₦{ngnAmount.toLocaleString()} NGN
+                </p>
+              )}
             </div>
           )}
         </div>
+
+        {/* Exchange rate display */}
+        {!isNGN && (
+          <div className="mb-6">
+            <ExchangeRateDisplay
+              currency={currency}
+              amount={amount}
+              onRateLoaded={handleRateLoaded}
+            />
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
@@ -139,7 +176,7 @@ function AcademyPaymentInner() {
             <div className="px-8 py-5" style={{ backgroundColor: '#062850' }}>
               <h2 className="font-bold text-white text-lg">💳 Pay with Card</h2>
               <p className="text-blue-300 text-sm mt-0.5">
-                Powered by Paystack — Visa & Mastercard accepted
+                Powered by Paystack — Visa & Mastercard & Apple Pay accepted
               </p>
             </div>
             <div className="px-8 py-8 text-center">
@@ -163,89 +200,156 @@ function AcademyPaymentInner() {
                     Connecting...
                   </>
                 ) : (
-                  `Pay ${formattedAmount} Now →`
+                  paystackButtonLabel
                 )}
               </Button>
             </div>
           </div>
         )}
 
-        {/* ── International — GBP + EUR bank transfer only ── */}
+        {/* ── International — Card (NGN) + GBP + EUR transfer ── */}
         {!isNGN && (
           <>
-            {/* Info banner */}
-            <div
-              className="rounded-2xl p-4 mb-6 flex items-start gap-3"
-              style={{ backgroundColor: '#EBF4FF', borderLeft: '4px solid #497296' }}
-            >
-              <span className="text-xl flex-shrink-0">ℹ️</span>
-              <div>
-                <p className="text-sm font-semibold" style={{ color: '#062850' }}>
-                  International Bank Transfer
-                </p>
-                <p className="text-xs text-gray-600 mt-0.5">
-                  Please transfer{' '}
-                  <span className="font-bold">{formattedAmount}</span> to one
-                  of the accounts below. After payment, send your proof to our
-                  WhatsApp or email and we will activate your account within
-                  2 hours.
-                </p>
-              </div>
-            </div>
-
-            {/* Method selector */}
             {!selectedMethod && (
               <div className="space-y-3 mb-6">
                 <p className="text-sm font-semibold text-gray-500 mb-4 text-center">
-                  Choose your preferred currency for transfer:
+                  Choose your preferred payment method:
                 </p>
 
-                {[
-                  {
-                    key: 'gbp' as PaymentMethod,
-                    emoji: '🇬🇧',
-                    title: 'Pay in GBP',
-                    subtitle: 'Transfer via Faster Payment (FPS) — UK bank accounts',
-                    badge: 'GBP',
-                  },
-                  {
-                    key: 'eur' as PaymentMethod,
-                    emoji: '🇪🇺',
-                    title: 'Pay in EUR',
-                    subtitle: 'Transfer via SEPA or SEPA Instant — European bank accounts',
-                    badge: 'EUR',
-                  },
-                ].map((method) => (
-                  <button
-                    key={method.key}
-                    onClick={() => setSelectedMethod(method.key)}
-                    className="w-full bg-white rounded-2xl border-2 border-gray-100
-                    p-5 flex items-center gap-4 text-left
-                    hover:border-[#497296] transition-all hover:shadow-md group"
+                {/* Card via Paystack */}
+                <button
+                  onClick={() => setSelectedMethod('paystack')}
+                  className="w-full bg-white rounded-2xl border-2 border-gray-100
+                  p-5 flex items-center gap-4 text-left
+                  hover:border-[#497296] transition-all hover:shadow-md group"
+                >
+                  <span className="text-3xl">💳</span>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm" style={{ color: '#062850' }}>
+                      Pay by Card
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Visa, Mastercard, Apple Pay — charged in NGN at live rate
+                    </p>
+                    {ngnAmount > 0 && (
+                      <p className="text-xs font-semibold mt-1" style={{ color: '#497296' }}>
+                        You will be charged ≈ ₦{ngnAmount.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                  <span
+                    className="text-xs font-bold text-white px-2 py-1 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: '#16A34A' }}
                   >
-                    <span className="text-3xl">{method.emoji}</span>
-                    <div className="flex-1">
-                      <p
-                        className="font-bold text-sm"
-                        style={{ color: '#062850' }}
-                      >
-                        {method.title}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {method.subtitle}
-                      </p>
-                    </div>
-                    <span
-                      className="text-xs font-bold text-white px-2 py-1 rounded-full"
-                      style={{ backgroundColor: '#062850' }}
-                    >
-                      {method.badge}
-                    </span>
-                    <span className="text-gray-300 group-hover:text-[#497296] transition-colors">
-                      →
-                    </span>
+                    Instant
+                  </span>
+                  <span className="text-gray-300 group-hover:text-[#497296] transition-colors">→</span>
+                </button>
+
+                {/* GBP transfer */}
+                <button
+                  onClick={() => setSelectedMethod('gbp')}
+                  className="w-full bg-white rounded-2xl border-2 border-gray-100
+                  p-5 flex items-center gap-4 text-left
+                  hover:border-[#497296] transition-all hover:shadow-md group"
+                >
+                  <span className="text-3xl">🇬🇧</span>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm" style={{ color: '#062850' }}>
+                      GBP Bank Transfer
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Faster Payment (FPS) — UK bank accounts
+                    </p>
+                  </div>
+                  <span
+                    className="text-xs font-bold text-white px-2 py-1 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: '#062850' }}
+                  >
+                    GBP
+                  </span>
+                  <span className="text-gray-300 group-hover:text-[#497296] transition-colors">→</span>
+                </button>
+
+                {/* EUR transfer */}
+                <button
+                  onClick={() => setSelectedMethod('eur')}
+                  className="w-full bg-white rounded-2xl border-2 border-gray-100
+                  p-5 flex items-center gap-4 text-left
+                  hover:border-[#497296] transition-all hover:shadow-md group"
+                >
+                  <span className="text-3xl">🇪🇺</span>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm" style={{ color: '#062850' }}>
+                      EUR Bank Transfer
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      SEPA & SEPA Instant — European bank accounts
+                    </p>
+                  </div>
+                  <span
+                    className="text-xs font-bold text-white px-2 py-1 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: '#1D4469' }}
+                  >
+                    EUR
+                  </span>
+                  <span className="text-gray-300 group-hover:text-[#497296] transition-colors">→</span>
+                </button>
+              </div>
+            )}
+
+            {/* Card via Paystack */}
+            {selectedMethod === 'paystack' && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                <div className="px-8 py-5" style={{ backgroundColor: '#062850' }}>
+                  <button
+                    onClick={() => setSelectedMethod(null)}
+                    className="text-blue-300 text-xs mb-2 hover:text-white transition-colors"
+                  >
+                    ← Back to payment options
                   </button>
-                ))}
+                  <h2 className="font-bold text-white text-lg">💳 Pay by Card</h2>
+                  <p className="text-blue-300 text-sm mt-0.5">Powered by Paystack</p>
+                </div>
+                <div className="px-8 py-8">
+                  <div
+                    className="p-4 rounded-xl mb-6 text-sm"
+                    style={{ backgroundColor: '#FFF8F0', borderLeft: '4px solid #F59E0B' }}
+                  >
+                    <p className="font-semibold text-amber-800 mb-1">
+                      ℹ️ Currency Note
+                    </p>
+                    <p className="text-amber-700 text-xs">
+                      Your card will be charged in{' '}
+                      <span className="font-bold">NGN (Nigerian Naira)</span>.
+                      Your bank will convert at their live rate.
+                      {ngnAmount > 0 && (
+                        <> Approximate amount: <span className="font-bold">₦{ngnAmount.toLocaleString()}</span>.</>
+                      )}{' '}
+                      Paystack will show the exact amount and fees before you confirm.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handlePaystack}
+                    disabled={loadingPaystack || ngnAmount === 0}
+                    className="w-full py-4 text-white font-semibold rounded-xl text-base"
+                    style={{ backgroundColor: '#497296' }}
+                  >
+                    {loadingPaystack ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2 inline" />
+                        Connecting...
+                      </>
+                    ) : ngnAmount === 0 ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin mr-2 inline" />
+                        Loading rate...
+                      </>
+                    ) : (
+                      paystackButtonLabel
+                    )}
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -285,13 +389,10 @@ function AcademyPaymentInner() {
           </>
         )}
 
-        {/* Send proof section */}
+        {/* Send proof */}
         {(isNGN || selectedMethod === 'gbp' || selectedMethod === 'eur') && (
           <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
-            <h3
-              className="font-bold text-sm mb-3"
-              style={{ color: '#062850' }}
-            >
+            <h3 className="font-bold text-sm mb-3" style={{ color: '#062850' }}>
               📤 After Payment — Send Proof To:
             </h3>
             <div className="space-y-2">
@@ -304,9 +405,7 @@ function AcademyPaymentInner() {
               >
                 <span className="text-xl">💬</span>
                 <div>
-                  <p className="font-semibold text-sm text-green-700">
-                    WhatsApp (Fastest)
-                  </p>
+                  <p className="font-semibold text-sm text-green-700">WhatsApp (Fastest)</p>
                   <p className="text-xs text-green-600">+234 903 344 0966</p>
                 </div>
               </a>
@@ -318,16 +417,14 @@ function AcademyPaymentInner() {
                 <span className="text-xl">📧</span>
                 <div>
                   <p className="font-semibold text-sm text-blue-700">Email</p>
-                  <p className="text-xs text-blue-600">
-                    info@averraknowledgeacademy.com
-                  </p>
+                  <p className="text-xs text-blue-600">info@averraknowledgeacademy.com</p>
                 </div>
               </a>
             </div>
           </div>
         )}
 
-        {/* Actions */}
+        {/* Bottom actions */}
         <div className="flex flex-col sm:flex-row gap-3">
           <a
             href="https://wa.me/2349033440966"
@@ -361,19 +458,9 @@ function AcademyPaymentInner() {
   )
 }
 
-// ─── Reusable bank transfer card ──────────────────────────────────────────
 function BankTransferCard({
-  title,
-  subtitle,
-  flag,
-  details,
-  reference,
-  setReference,
-  copiedField,
-  copyToClipboard,
-  onBack,
-  methodNote,
-  amount,
+  title, subtitle, flag, details, reference, setReference,
+  copiedField, copyToClipboard, onBack, methodNote, amount,
 }: {
   title: string
   subtitle: string
@@ -396,32 +483,22 @@ function BankTransferCard({
         >
           ← Back to payment options
         </button>
-        <h2 className="font-bold text-white text-lg">
-          {flag} {title}
-        </h2>
+        <h2 className="font-bold text-white text-lg">{flag} {title}</h2>
         <p className="text-blue-300 text-sm mt-0.5">{subtitle}</p>
       </div>
-
       <div className="px-8 py-6 space-y-4">
-
-        {/* Amount reminder */}
         <div
           className="p-4 rounded-xl text-center border-2"
           style={{ borderColor: '#497296', backgroundColor: '#EBF4FF' }}
         >
           <p className="text-xs text-gray-500 mb-1">Please transfer exactly</p>
-          <p className="text-2xl font-bold" style={{ color: '#062850' }}>
-            {amount}
-          </p>
+          <p className="text-2xl font-bold" style={{ color: '#062850' }}>{amount}</p>
         </div>
-
         <div
           className="rounded-2xl p-6 border-2"
           style={{ borderColor: '#497296', backgroundColor: '#F0F6FB' }}
         >
-          <h3 className="font-bold mb-4" style={{ color: '#062850' }}>
-            🏦 Bank Account Details
-          </h3>
+          <h3 className="font-bold mb-4" style={{ color: '#062850' }}>🏦 Bank Account Details</h3>
           <div className="space-y-3">
             {details.map((detail) => (
               <div
@@ -431,29 +508,21 @@ function BankTransferCard({
               >
                 <div>
                   <p className="text-xs text-gray-500">{detail.label}</p>
-                  <p
-                    className="font-bold text-sm font-mono mt-0.5"
-                    style={{ color: '#062850' }}
-                  >
+                  <p className="font-bold text-sm font-mono mt-0.5" style={{ color: '#062850' }}>
                     {detail.value}
                   </p>
                 </div>
                 <button
                   onClick={() => copyToClipboard(detail.value, detail.label)}
-                  className="p-2 rounded-lg transition-all hover:bg-gray-100
-                  opacity-0 group-hover:opacity-100"
+                  className="p-2 rounded-lg transition-all hover:bg-gray-100 opacity-0 group-hover:opacity-100"
                 >
-                  {copiedField === detail.label ? (
-                    <Check className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <Copy className="w-4 h-4 text-gray-400" />
-                  )}
+                  {copiedField === detail.label
+                    ? <Check className="w-4 h-4 text-green-500" />
+                    : <Copy className="w-4 h-4 text-gray-400" />}
                 </button>
               </div>
             ))}
           </div>
-
-          {/* Reference */}
           <div
             className="mt-4 p-4 rounded-xl border-2 border-dashed"
             style={{ borderColor: '#497296' }}
@@ -467,25 +536,20 @@ function BankTransferCard({
                 type="text"
                 value={reference}
                 onChange={(e) => setReference(e.target.value)}
-                className="flex-1 font-bold font-mono text-center px-3 py-2
-                rounded-lg border border-gray-200 focus:outline-none
-                focus:ring-2 focus:ring-[#497296]"
+                className="flex-1 font-bold font-mono text-center px-3 py-2 rounded-lg
+                border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#497296]"
                 style={{ color: '#062850' }}
               />
               <button
                 onClick={() => copyToClipboard(reference, 'ref')}
-                className="p-2 rounded-lg border border-gray-200
-                hover:bg-gray-100 transition-all"
+                className="p-2 rounded-lg border border-gray-200 hover:bg-gray-100 transition-all"
               >
-                {copiedField === 'ref' ? (
-                  <Check className="w-4 h-4 text-green-500" />
-                ) : (
-                  <Copy className="w-4 h-4 text-gray-400" />
-                )}
+                {copiedField === 'ref'
+                  ? <Check className="w-4 h-4 text-green-500" />
+                  : <Copy className="w-4 h-4 text-gray-400" />}
               </button>
             </div>
           </div>
-
           <div
             className="mt-4 p-3 rounded-xl text-sm text-center font-semibold"
             style={{ backgroundColor: '#EBF4FF', color: '#062850' }}
@@ -498,7 +562,6 @@ function BankTransferCard({
   )
 }
 
-// ─── Suspense wrapper ──────────────────────────────────────────────────────
 export default function AcademyPaymentPage() {
   return (
     <Suspense

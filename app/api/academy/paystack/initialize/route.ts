@@ -11,7 +11,7 @@ function getAdminClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { enrollment_id } = await request.json()
+    const { enrollment_id, ngn_amount } = await request.json()
 
     if (!enrollment_id) {
       return NextResponse.json(
@@ -61,7 +61,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const amountInKobo = Math.round(Number(enrollment.billing_amount) * 100)
+    // Use provided NGN amount (for international users) or billing_amount (for NGN users)
+    const billingAmountNGN = ngn_amount && ngn_amount > 0
+      ? ngn_amount
+      : Number(enrollment.billing_amount)
+    const amountInKobo = Math.round(billingAmountNGN * 100)
 
     const reference = `AVR-ACAD-${enrollment_id.slice(0, 8).toUpperCase()}-${Date.now()}`
 
