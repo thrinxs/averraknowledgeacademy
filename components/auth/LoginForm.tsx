@@ -178,6 +178,15 @@ export default function LoginForm() {
         Academy&apos;s Terms of Service and Privacy Policy.
       </p>
 
+      <div className="text-center pt-2">
+        <a
+          href="/auth/staff-login"
+          className="text-xs text-gray-300 hover:text-gray-500 transition-colors"
+        >
+          Staff / Admin Login
+        </a>
+      </div>
+
     </form>
   )
 }
