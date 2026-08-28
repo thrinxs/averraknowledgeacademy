@@ -8,7 +8,7 @@ import Image from 'next/image'
 
 const SECRET_QUESTIONS = [
   'What is the name of your primary school?',
-  'What is your mother's maiden name?',
+  'What is your mother\u2019s maiden name?',
   'What was the name of your first pet?',
   'What city were you born in?',
   'What was the name of your first employer?',
