@@ -1,3 +1,5 @@
+'use client'
+
 import { createClient } from '@supabase/supabase-js'
 
 function getAdminClient() {
@@ -120,6 +122,9 @@ export default async function AdminAcademyPage() {
   }
 
   const billingPeriodMap: Record<string, string> = {
+    monthly: 'Monthly',
+    termly: 'Termly (3 Months)',
+    annually: 'Annually (12 Months)',
     '2_weeks': '2 Weeks',
     '1_month': '1 Month',
     '2_months': '2 Months',
@@ -486,29 +491,17 @@ export default async function AdminAcademyPage() {
                 >
                   {enrollment.payment_status ===
                     'unpaid' && (
-                    <form
-                      action={`/api/academy/confirm-payment`}
-                      method="POST"
-                    >
-                      <input
-                        type="hidden"
-                        name="enrollment_id"
-                        value={enrollment.id}
-                      />
-                      <button
-                        type="submit"
-                        className="flex items-center
-                        gap-2 px-4 py-2 rounded-xl
-                        text-sm font-semibold text-white
-                        transition-all hover:opacity-90"
-                        style={{
-                          backgroundColor: '#16A34A',
-                        }}
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        Confirm Payment Received
-                      </button>
-                    </form>
+                    <ConfirmPaymentButton
+                      enrollmentId={enrollment.id}
+                      billingAmount={Number(enrollment.billing_amount || 0)}
+                      currency={enrollment.billing_currency || 'GBP'}
+                      parentEmail={
+                        (Array.isArray(enrollment.profiles)
+                          ? enrollment.profiles[0]
+                          : enrollment.profiles
+                        )?.email || ''
+                      }
+                    />
                   )}
 
                   <a
