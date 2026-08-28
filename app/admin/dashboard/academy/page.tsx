@@ -1,6 +1,7 @@
 'use client'
 
 import { createClient } from '@supabase/supabase-js'
+import ConfirmPaymentButton from '@/components/admin/ConfirmPaymentButton'
 
 function getAdminClient() {
   return createClient(
