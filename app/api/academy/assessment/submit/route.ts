@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       s.percentage = Math.round((s.correct / s.total) * 100)
     }
 
-    const totalCorrect = gradedResponses.reduce((sum, r) => sum + (r?.marks_awarded || 0), 0)
+    const totalCorrect = gradedResponses.reduce((sum: number, r) => sum + (r?.marks_awarded || 0), 0)
     const totalQuestions = gradedResponses.length
     const scorePercentage = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0
     const levelResult = determineLevel(scorePercentage)
