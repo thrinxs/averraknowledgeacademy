@@ -171,6 +171,18 @@ export async function POST(request: NextRequest) {
       console.error('Payment confirmed email error (non-fatal):', emailErr)
     }
 
+    // Create assessments for all children (non-blocking)
+    try {
+      const origin = request.headers.get('origin') || 'https://www.averraknowledgeacademy.com'
+      await fetch(`${origin}/api/academy/assessment/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enrollment_id: enrollmentId }),
+      })
+    } catch (assessmentErr) {
+      console.error('Assessment creation error (non-fatal):', assessmentErr)
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Confirm payment error:', error)

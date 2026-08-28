@@ -71,6 +71,21 @@ export default async function StudentAcademyPage({
         .eq('enrollment_id', enrollment.id)
     : { data: [] }
 
+  // Get assessments
+  const { data: assessments } = enrollment
+    ? await admin
+        .from('assessments')
+        .select('*')
+        .eq('enrollment_id', enrollment.id)
+    : { data: [] }
+
+  const pendingAssessments = (assessments || []).filter(
+    (a) => a.status === 'pending' || a.status === 'in_progress'
+  )
+  const completedAssessments = (assessments || []).filter(
+    (a) => a.status === 'completed' || a.status === 'expired'
+  )
+
   const currency = enrollment?.currency || 'GBP'
   const currencySymbol = currency === 'NGN' ? '₦' : '£'
 
@@ -180,20 +195,61 @@ export default async function StudentAcademyPage({
           )}
 
           {/* Active Banner */}
-          {enrollment.payment_status === 'paid' && (
-            <div
-              className="rounded-2xl p-6 border-2 border-green-200"
-              style={{ backgroundColor: '#F0FDF4' }}
-            >
+          {enrollment.payment_status === 'paid' && pendingAssessments.length > 0 && (
+            <div className="rounded-2xl p-6 border-2 border-blue-200" style={{ backgroundColor: '#EBF4FF' }}>
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-xl">📝</div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg mb-1 text-blue-800">Baseline Assessment Ready</h3>
+                  <p className="text-blue-700 text-sm mb-4">
+                    Your payment has been confirmed. Before classes begin, your learner needs to complete a short baseline assessment so we can teach at the right level.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {pendingAssessments.map((assessment: { id: string }) => (
+                      <a key={assessment.id}
+                        href={'/dashboard/academy/assessment?assessment_id=' + assessment.id}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+                        style={{ backgroundColor: '#497296' }}>
+                        📝 Start Assessment
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {enrollment.payment_status === 'paid' && pendingAssessments.length === 0 && completedAssessments.length > 0 && (
+            <div className="rounded-2xl p-6 border-2 border-green-200" style={{ backgroundColor: '#F0FDF4' }}>
+              <div className="flex items-start gap-4">
+                <CheckCircle className="w-8 h-8 flex-shrink-0 text-green-500" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg mb-1 text-green-800">Assessment Complete ✅</h3>
+                  <p className="text-green-700 text-sm mb-4">
+                    Great work! Our team will confirm your timetable within 24 hours and classes will begin soon.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {completedAssessments.map((assessment: { id: string }) => (
+                      <a key={assessment.id}
+                        href={'/dashboard/academy/assessment/results?assessment_id=' + assessment.id}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
+                        style={{ backgroundColor: '#16A34A' }}>
+                        View Results
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {enrollment.payment_status === 'paid' && (assessments || []).length === 0 && (
+            <div className="rounded-2xl p-6 border-2 border-green-200" style={{ backgroundColor: '#F0FDF4' }}>
               <div className="flex items-start gap-4">
                 <CheckCircle className="w-8 h-8 flex-shrink-0 text-green-500" />
                 <div>
-                  <h3 className="font-bold text-lg mb-1 text-green-800">
-                    Enrolment Active ✅
-                  </h3>
-                  <p className="text-green-700 text-sm">
-                    Your payment has been confirmed. Our team will contact you within 24 hours to confirm your timetable.
-                  </p>
+                  <h3 className="font-bold text-lg mb-1 text-green-800">Enrolment Active ✅</h3>
+                  <p className="text-green-700 text-sm">Your payment has been confirmed. Our team will contact you within 24 hours to confirm your timetable.</p>
                 </div>
               </div>
             </div>

@@ -172,6 +172,12 @@ export default function AdminSidebar({
           icon: BookOpen,
           badge: 0,
         },
+        {
+          label: 'Question Bank',
+          href: '/admin/dashboard/academy/questions',
+          icon: BookOpen,
+          badge: 0,
+        },
       ],
     },
     {
