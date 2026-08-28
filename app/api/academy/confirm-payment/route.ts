@@ -41,8 +41,13 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData()
-    const enrollmentId =
-      formData.get('enrollment_id') as string
+    const enrollmentId = formData.get('enrollment_id') as string
+    const amountReceived = Number(formData.get('amount_received') || 0)
+    const discountType = formData.get('discount_type') as string || 'none'
+    const discountValue = Number(formData.get('discount_value') || 0)
+    const finalAmount = Number(formData.get('final_amount') || amountReceived)
+    const adminNotes = formData.get('notes') as string || ''
+    const receiptFile = formData.get('receipt') as File | null
 
     if (!enrollmentId) {
       return NextResponse.redirect(
@@ -75,6 +80,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Upload receipt if provided
+    let receiptUrl = null
+    if (receiptFile && receiptFile.size > 0) {
+      const ext = receiptFile.name.split('.').pop()
+      const path = `receipts/${enrollmentId}/receipt.${ext}`
+      const buffer = Buffer.from(await receiptFile.arrayBuffer())
+      await supabaseAdmin.storage.from('avatars').upload(path, buffer, {
+        contentType: receiptFile.type,
+        upsert: true,
+      })
+      const { data: { publicUrl } } = supabaseAdmin.storage.from('avatars').getPublicUrl(path)
+      receiptUrl = publicUrl
+    }
+
     // Mark enrollment as paid
     await supabaseAdmin
       .from('academy_enrollments')
@@ -84,6 +103,12 @@ export async function POST(request: NextRequest) {
         billing_paid: true,
         billing_paid_at: new Date().toISOString(),
         status: 'active',
+        amount_received: amountReceived,
+        discount_type: discountType !== 'none' ? discountType : null,
+        discount_value: discountType !== 'none' ? discountValue : null,
+        final_amount_paid: finalAmount,
+        admin_notes: adminNotes || null,
+        receipt_url: receiptUrl,
       })
       .eq('id', enrollmentId)
 
@@ -146,12 +171,7 @@ export async function POST(request: NextRequest) {
       console.error('Payment confirmed email error (non-fatal):', emailErr)
     }
 
-    return NextResponse.redirect(
-      new URL(
-        '/admin/dashboard/academy?success=payment_confirmed',
-        request.url
-      )
-    )
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Confirm payment error:', error)
     return NextResponse.redirect(

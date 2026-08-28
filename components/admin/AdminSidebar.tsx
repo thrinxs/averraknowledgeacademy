@@ -20,6 +20,7 @@ import {
   School,
   Briefcase,
   ChevronDown,
+  UserCog,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -56,6 +57,7 @@ export default function AdminSidebar({
     Academy: true,
     Skills: false,
     Careers: false,
+    Staff: true,
     Users: true,
     Communications: true,
     Content: false,
@@ -192,6 +194,18 @@ export default function AdminSidebar({
           label: 'Programmes',
           href: '/admin/dashboard/careers',
           icon: Briefcase,
+          badge: 0,
+        },
+      ],
+    },
+    {
+      title: 'Staff',
+      color: '#8B5CF6',
+      items: [
+        {
+          label: 'Staff Members',
+          href: '/admin/dashboard/staff',
+          icon: UserCog,
           badge: 0,
         },
       ],

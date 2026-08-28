@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Mail, Phone, CheckCircle, Clock } from 'lucide-react'
+import { ArrowLeft, Mail, Phone, Clock } from 'lucide-react'
+import EnrollmentDetailClient from '@/app/admin/dashboard/academy/EnrollmentDetailClient'
 
 function getAdminClient() {
   return createClient(
@@ -229,38 +230,13 @@ export default async function ManageEnrollmentPage({
             ))}
           </div>
 
-          {enrollment.payment_status === 'unpaid' ? (
-            <form
-              action="/api/academy/confirm-payment"
-              method="POST"
-            >
-              <input
-                type="hidden"
-                name="enrollment_id"
-                value={enrollment.id}
-              />
-              <button
-                type="submit"
-                className="w-full flex items-center
-                justify-center gap-2 px-4 py-3
-                rounded-xl text-sm font-bold
-                text-white transition-all
-                hover:opacity-90"
-                style={{ backgroundColor: '#16A34A' }}
-              >
-                <CheckCircle className="w-4 h-4" />
-                Confirm Payment Received
-              </button>
-            </form>
-          ) : (
-            <div
-              className="p-3 rounded-xl text-sm
-              text-green-700 bg-green-50 text-center
-              font-semibold"
-            >
-              ✅ Payment Confirmed
-            </div>
-          )}
+          <EnrollmentDetailClient
+            enrollmentId={enrollment.id}
+            billingAmount={Number(enrollment.billing_amount || 0)}
+            currency={enrollment.currency || 'GBP'}
+            parentEmail={parent?.email || ''}
+            isPaid={enrollment.payment_status === 'paid'}
+          />
         </div>
 
         {/* Schedule */}
