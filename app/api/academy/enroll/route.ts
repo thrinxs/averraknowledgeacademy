@@ -208,6 +208,7 @@ export async function POST(request: NextRequest) {
           billingPeriod: billing_period,
           classType: class_type,
           learnerNames,
+          learners,
         }),
         sendAdminEnrollmentAlert({
           parentName: full_name,
