@@ -32,13 +32,18 @@ export async function GET() {
 
     const credsMap = new Map((credentials || []).map(c => [c.user_id, c]))
 
-    const staff = (staffProfiles || []).map(p => ({
-      user_id: p.id,
-      full_name: p.full_name,
-      email: p.email,
-      role: p.role,
-      ...(credsMap.get(p.id) || { onboarding_completed: false, locked_at: null, failed_attempts: 0 }),
-    }))
+    const staff = (staffProfiles || []).map(p => {
+      const creds = credsMap.get(p.id) || { onboarding_completed: false, locked_at: null, failed_attempts: 0 }
+      return {
+        user_id: p.id,
+        full_name: p.full_name,
+        email: p.email,
+        role: p.role,
+        onboarding_completed: creds.onboarding_completed,
+        locked_at: creds.locked_at,
+        failed_attempts: creds.failed_attempts,
+      }
+    })
 
     return NextResponse.json({ staff })
   } catch (err) {
