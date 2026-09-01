@@ -226,7 +226,7 @@ export default function PrimaryAssessmentClient({
     }
   }
 
-  const sectionIcons = ['\u{1F4D6}', '\u270F\uFE0F', '\u{1F3A4}', '\u{1F4AC}']
+  const sectionIcons = ['📖', '✏️', '🎤', '💬']
   const sectionIndex = { intro: 0, reading: 0, tracing: 1, audio: 2, sentence: 3, submitting: 3 }[section]
 
   function SectionProgress({ current }: { current: number }) {
@@ -258,10 +258,10 @@ export default function PrimaryAssessmentClient({
             {error && <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2"><AlertCircle className="w-4 h-4 text-red-500 mt-0.5" /><p className="text-red-700 text-sm">{error}</p></div>}
             <div className="space-y-3 mb-6">
               {[
-                { icon: '\u{1F4D6}', title: 'Reading', desc: 'Read a short passage aloud. We measure fluency and comprehension.' },
-                { icon: '\u270F\uFE0F', title: 'Tracing', desc: 'Trace words on screen with your finger or stylus.' },
-                { icon: '\u{1F3A4}', title: 'Speaking', desc: 'Answer spoken questions using your microphone.' },
-                { icon: '\u{1F4AC}', title: 'Sentence Construction', desc: 'Complete sentence starters by speaking aloud.' },
+                { icon: '📖', title: 'Reading', desc: 'Read a short passage aloud. We measure fluency and comprehension.' },
+                { icon: '✏️', title: 'Tracing', desc: 'Trace words on screen with your finger or stylus.' },
+                { icon: '🎤', title: 'Speaking', desc: 'Answer spoken questions using your microphone.' },
+                { icon: '💬', title: 'Sentence Construction', desc: 'Complete sentence starters by speaking aloud.' },
               ].map((item) => (
                 <div key={item.title} className="flex items-start gap-3 p-4 rounded-xl" style={{ backgroundColor: '#F0F6FB' }}>
                   <span className="text-xl flex-shrink-0">{item.icon}</span>
@@ -273,7 +273,7 @@ export default function PrimaryAssessmentClient({
               ))}
             </div>
             <div className="p-4 rounded-xl mb-4 border" style={{ borderColor: '#F59E0B', backgroundColor: '#FFF8F0' }}>
-              <p className="text-xs font-semibold text-amber-800 mb-1">\u{1F4F1} Device Recommendation</p>
+              <p className="text-xs font-semibold text-amber-800 mb-1">📱 Device Recommendation</p>
               <p className="text-xs text-amber-700">Use a <strong>tablet or phone</strong> for the best experience. Ensure your <strong>microphone is enabled</strong>.</p>
             </div>
             <div className="flex items-start gap-3 mb-6 p-4 rounded-xl border-2" style={{ borderColor: '#497296', backgroundColor: '#EBF4FF' }}>
@@ -299,7 +299,7 @@ export default function PrimaryAssessmentClient({
       <div className="max-w-2xl mx-auto">
         <SectionProgress current={0} />
         <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-4 shadow-sm">
-          <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>\u{1F4D6} Reading Assessment</h2>
+          <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>📖 Reading Assessment</h2>
           <p className="text-xs text-gray-500 mb-4">Read the passage below aloud clearly and at your natural pace. Press <strong>Start Reading</strong> when ready.</p>
           <div className="p-6 rounded-2xl mb-4 border-2 text-lg font-medium" style={{ borderColor: '#497296', backgroundColor: '#F0F6FB', color: '#062850', lineHeight: '2.2' }}>
             {readingPassage.passage}
@@ -352,7 +352,7 @@ export default function PrimaryAssessmentClient({
         <div className="max-w-2xl mx-auto">
           <SectionProgress current={1} />
           <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-4 shadow-sm">
-            <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>\u270F\uFE0F Tracing Assessment</h2>
+            <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>✏️ Tracing Assessment</h2>
             <p className="text-xs text-gray-500 mb-4">Trace over each word using your finger or stylus. The word is shown faintly — trace over it carefully.</p>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -386,7 +386,7 @@ export default function PrimaryAssessmentClient({
                     color: tracingDone[i] ? '#16A34A' : i === tracingWord ? '#497296' : '#9CA3AF',
                     border: i === tracingWord ? '1px solid #497296' : '1px solid transparent',
                   }}>
-                  {tracingDone[i] ? '\u2713 ' : ''}{w}
+                  {tracingDone[i] ? '✓ ' : ''}{w}
                 </span>
               ))}
             </div>
@@ -419,7 +419,7 @@ export default function PrimaryAssessmentClient({
         <div className="max-w-2xl mx-auto">
           <SectionProgress current={2} />
           <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-4 shadow-sm">
-            <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>\u{1F3A4} Speaking Assessment</h2>
+            <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>🎤 Speaking Assessment</h2>
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs text-gray-500">Question {currentAudioQ + 1} of {audioContent.questions.length}</p>
               <div className="flex gap-1">
@@ -499,7 +499,7 @@ export default function PrimaryAssessmentClient({
         <div className="max-w-2xl mx-auto">
           <SectionProgress current={3} />
           <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-4 shadow-sm">
-            <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>\u{1F4AC} Sentence Construction</h2>
+            <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>💬 Sentence Construction</h2>
             <p className="text-xs text-gray-500 mb-4">Sentence {currentSentenceQ + 1} of {sentenceContent.sentences.length}</p>
             <div className="p-6 rounded-2xl mb-4" style={{ backgroundColor: '#F0F6FB' }}>
               <p className="text-xs text-gray-500 mb-2">Complete this sentence starter:</p>
