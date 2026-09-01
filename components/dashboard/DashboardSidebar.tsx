@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
+  DollarSign,
   GraduationCap,
   Trophy,
   Bell,
@@ -210,6 +211,12 @@ export default function DashboardSidebar({
           href: '/dashboard/messages',
           icon: MessageSquare,
           badge: unreadMessages,
+        },
+        {
+          label: 'Earn With Averra',
+          href: '/dashboard/earn',
+          icon: DollarSign,
+          badge: 0,
         },
         {
           label: 'Profile',

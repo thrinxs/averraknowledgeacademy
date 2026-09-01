@@ -60,6 +60,7 @@ export default function AdminSidebar({
     Skills: false,
     Careers: false,
     Staff: true,
+    Referrals: true,
     Users: true,
     Communications: true,
     Content: false,
@@ -214,6 +215,18 @@ export default function AdminSidebar({
           label: 'Staff Members',
           href: '/admin/dashboard/staff',
           icon: UserCog,
+          badge: 0,
+        },
+      ],
+    },
+    {
+      title: 'Referrals',
+      color: '#16A34A',
+      items: [
+        {
+          label: 'Referral Program',
+          href: '/admin/dashboard/referrals',
+          icon: Users,
           badge: 0,
         },
       ],

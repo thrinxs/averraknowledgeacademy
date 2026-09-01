@@ -72,26 +72,26 @@ type FormData = {
 const NGN_PRICING: Record<ClassType, Record<string, number>> = {
   private: {
     '1-2': 100000,
-    '3-4': 180000,
-    '5-6': 250000,
+    '3-4': 100000,
+    '5-6': 100000,
   },
   general: {
     '1-2': 50000,
-    '3-4': 90000,
-    '5-6': 120000,
+    '3-4': 50000,
+    '5-6': 50000,
   },
 }
 
 const GBP_PRICING: Record<ClassType, Record<string, number>> = {
   private: {
-    '1-2': 100,
-    '3-4': 180,
-    '5-6': 250,
+    '1-2': 55,
+    '3-4': 55,
+    '5-6': 55,
   },
   general: {
-    '1-2': 50,
-    '3-4': 90,
-    '5-6': 120,
+    '1-2': 30,
+    '3-4': 30,
+    '5-6': 30,
   },
 }
 
