@@ -35,14 +35,14 @@ function useSpeechRecognition() {
   const recRef = useRef<unknown>(null)
 
   useEffect(() => {
-    const SR = (window as Record<string, unknown>).SpeechRecognition ||
-               (window as Record<string, unknown>).webkitSpeechRecognition
+    const SR = (window as unknown as Record<string, unknown>).SpeechRecognition ||
+               (window as unknown as Record<string, unknown>).webkitSpeechRecognition
     if (SR) setSupported(true)
   }, [])
 
   const startListening = useCallback(() => {
-    const SR = (window as Record<string, unknown>).SpeechRecognition ||
-               (window as Record<string, unknown>).webkitSpeechRecognition
+    const SR = (window as unknown as Record<string, unknown>).SpeechRecognition ||
+               (window as unknown as Record<string, unknown>).webkitSpeechRecognition
     if (!SR) return
     type SRInstance = {
       lang: string; continuous: boolean; interimResults: boolean
