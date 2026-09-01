@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Mic, MicOff, Square, CheckCircle, AlertCircle, ChevronRight, Loader2, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -12,7 +13,8 @@ interface Props {
   yearGroupCode: string
 }
 
-type Section = 'intro' | 'reading' | 'tracing' | 'audio' | 'sentence' | 'submitting'
+type DeviceType = 'phone' | 'tablet' | 'laptop' | 'desktop' | null
+type Section = 'device' | 'intro' | 'reading' | 'tracing' | 'audio' | 'sentence' | 'submitting'
 
 type AudioResponse = {
   question_id: number
@@ -79,7 +81,9 @@ function useSpeechRecognition() {
 export default function PrimaryAssessmentClient({
   assessmentId, childName, yearGroupLabel,
 }: Props) {
-  const [section, setSection] = useState<Section>('intro')
+  const [section, setSection] = useState<Section>('device')
+  const [deviceType, setDeviceType] = useState<DeviceType>(null)
+  const [savingDevice, setSavingDevice] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
@@ -113,6 +117,22 @@ export default function PrimaryAssessmentClient({
   const [tracingWord, setTracingWord] = useState(0)
   const [isDrawing, setIsDrawing] = useState(false)
   const [tracingDone, setTracingDone] = useState<boolean[]>([])
+
+  async function saveDeviceAndContinue(device: DeviceType) {
+    setDeviceType(device)
+    setSavingDevice(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase.from('profiles').update({ device_type: device }).eq('id', user.id)
+      }
+    } catch (err) {
+      console.error('Failed to save device type:', err)
+    } finally {
+      setSavingDevice(false)
+      setSection('intro')
+    }
+  }
 
   async function loadContent() {
     setLoading(true)
@@ -246,6 +266,64 @@ export default function PrimaryAssessmentClient({
     )
   }
 
+  if (section === 'device') return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ backgroundColor: '#F0F6FB' }}>
+      <div className="max-w-lg w-full">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-8 py-6" style={{ backgroundColor: '#062850' }}>
+            <h1 className="text-xl font-bold text-white mb-1">Before We Begin</h1>
+            <p className="text-blue-300 text-sm">{childName} — {yearGroupLabel}</p>
+          </div>
+          <div className="px-8 py-8">
+            <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>
+              What device are you using?
+            </h2>
+            <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+              We will adapt the assessment to work best on your device. This helps us give you the most accurate and comfortable experience.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {[
+                { key: 'phone' as DeviceType, emoji: '📱', label: 'Phone', desc: 'Touchscreen, small screen' },
+                { key: 'tablet' as DeviceType, emoji: '📟', label: 'Tablet', desc: 'Touchscreen, larger screen' },
+                { key: 'laptop' as DeviceType, emoji: '💻', label: 'Laptop', desc: 'Keyboard and trackpad' },
+                { key: 'desktop' as DeviceType, emoji: '🖥️', label: 'Desktop', desc: 'Keyboard and mouse' },
+              ].map((device) => (
+                <button
+                  key={device.key}
+                  onClick={() => !savingDevice && saveDeviceAndContinue(device.key)}
+                  disabled={savingDevice}
+                  className="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all hover:shadow-md"
+                  style={{
+                    borderColor: deviceType === device.key ? '#062850' : '#E5E7EB',
+                    backgroundColor: deviceType === device.key ? '#EBF4FF' : '#ffffff',
+                  }}
+                >
+                  <span className="text-4xl">{device.emoji}</span>
+                  <div className="text-center">
+                    <p className="font-bold text-sm" style={{ color: '#062850' }}>{device.label}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{device.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {savingDevice && (
+              <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Saving your preference...
+              </div>
+            )}
+
+            <p className="text-xs text-gray-400 text-center mt-4">
+              Your choice will be saved so you do not need to select again next time.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
   if (section === 'intro') return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ backgroundColor: '#F0F6FB' }}>
       <div className="max-w-lg w-full">
@@ -273,8 +351,17 @@ export default function PrimaryAssessmentClient({
               ))}
             </div>
             <div className="p-4 rounded-xl mb-4 border" style={{ borderColor: '#F59E0B', backgroundColor: '#FFF8F0' }}>
-              <p className="text-xs font-semibold text-amber-800 mb-1">📱 Device Recommendation</p>
-              <p className="text-xs text-amber-700">Use a <strong>tablet or phone</strong> for the best experience. Ensure your <strong>microphone is enabled</strong>.</p>
+              {deviceType === 'phone' || deviceType === 'tablet' ? (
+                <>
+                  <p className="text-xs font-semibold text-amber-800 mb-1">📱 Touch Device Detected</p>
+                  <p className="text-xs text-amber-700">Great choice! The tracing section works best on your device. Make sure your <strong>microphone is enabled</strong>.</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs font-semibold text-amber-800 mb-1">💻 Desktop/Laptop Detected</p>
+                  <p className="text-xs text-amber-700">You can use your <strong>mouse to trace</strong> words. For the best tracing experience, a tablet is recommended. Make sure your <strong>microphone is enabled</strong>.</p>
+                </>
+              )}
             </div>
             <div className="flex items-start gap-3 mb-6 p-4 rounded-xl border-2" style={{ borderColor: '#497296', backgroundColor: '#EBF4FF' }}>
               <input type="checkbox" id="confirm" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} className="mt-0.5 w-4 h-4 cursor-pointer flex-shrink-0" />
@@ -353,7 +440,11 @@ export default function PrimaryAssessmentClient({
           <SectionProgress current={1} />
           <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-4 shadow-sm">
             <h2 className="font-bold text-lg mb-2" style={{ color: '#062850' }}>✏️ Tracing Assessment</h2>
-            <p className="text-xs text-gray-500 mb-4">Trace over each word using your finger or stylus. The word is shown faintly — trace over it carefully.</p>
+            <p className="text-xs text-gray-500 mb-4">
+              {deviceType === 'phone' || deviceType === 'tablet'
+                ? 'Trace over each word using your finger or stylus. The word is shown faintly — trace over it carefully.'
+                : 'Trace over each word using your mouse. Click and drag to draw. The word is shown faintly as a guide.'}
+            </p>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold" style={{ color: '#062850' }}>Word {tracingWord + 1} of {wordList.tracing_words.length}:</span>
@@ -362,8 +453,8 @@ export default function PrimaryAssessmentClient({
               <span className="text-xs text-gray-500">{tracingDone.filter(Boolean).length} done</span>
             </div>
             <div className="relative rounded-2xl overflow-hidden border-2 mb-4" style={{ borderColor: '#497296' }}>
-              <canvas ref={canvasRef} width={560} height={200}
-                className="w-full touch-none bg-white cursor-crosshair"
+              <canvas ref={canvasRef} width={560} height={deviceType === 'phone' ? 150 : deviceType === 'tablet' ? 220 : 180}
+                className={`w-full touch-none bg-white cursor-crosshair ${deviceType === 'phone' ? 'h-32' : ''}`}
                 onMouseDown={startDraw} onMouseMove={draw} onMouseUp={endDraw} onMouseLeave={endDraw}
                 onTouchStart={startDraw} onTouchMove={draw} onTouchEnd={endDraw} />
             </div>
