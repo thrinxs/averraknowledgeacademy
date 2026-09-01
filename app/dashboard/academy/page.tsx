@@ -75,9 +75,24 @@ export default async function StudentAcademyPage({
   const { data: assessments } = enrollment
     ? await admin
         .from('assessments')
-        .select('*')
+        .select('*, academy_children(year_group_code)')
         .eq('enrollment_id', enrollment.id)
     : { data: [] }
+
+  // Helper to determine if an assessment is for a primary learner
+  const PRIMARY_YEARS = ['Y1','Y2','Y3','Y4','Y5','Y6','P1','P2','P3','P4','P5','P6','Year 1','Year 2','Year 3','Year 4','Year 5','Year 6']
+  function isPrimaryAssessment(assessment: { academy_children?: { year_group_code: string } | { year_group_code: string }[] | null }) {
+    const child = Array.isArray(assessment.academy_children)
+      ? assessment.academy_children[0]
+      : assessment.academy_children
+    return PRIMARY_YEARS.includes(child?.year_group_code || '')
+  }
+  function getAssessmentUrl(assessment: { id: string; academy_children?: { year_group_code: string } | { year_group_code: string }[] | null }) {
+    if (isPrimaryAssessment(assessment)) {
+      return '/dashboard/academy/assessment/primary?assessment_id=' + assessment.id
+    }
+    return '/dashboard/academy/assessment?assessment_id=' + assessment.id
+  }
 
   const pendingAssessments = (assessments || []).filter(
     (a) => a.status === 'pending' || a.status === 'in_progress'
@@ -205,9 +220,9 @@ export default async function StudentAcademyPage({
                     Your payment has been confirmed. Before classes begin, your learner needs to complete a short baseline assessment so we can teach at the right level.
                   </p>
                   <div className="flex flex-wrap gap-3">
-                    {pendingAssessments.map((assessment: { id: string }) => (
+                    {pendingAssessments.map((assessment: { id: string; academy_children?: { year_group_code: string } | { year_group_code: string }[] | null }) => (
                       <a key={assessment.id}
-                        href={'/dashboard/academy/assessment?assessment_id=' + assessment.id}
+                        href={getAssessmentUrl(assessment)}
                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
                         style={{ backgroundColor: '#497296' }}>
                         📝 Start Assessment
@@ -229,7 +244,7 @@ export default async function StudentAcademyPage({
                     Great work! Our team will confirm your timetable within 24 hours and classes will begin soon.
                   </p>
                   <div className="flex flex-wrap gap-3">
-                    {completedAssessments.map((assessment: { id: string }) => (
+                    {completedAssessments.map((assessment: { id: string; academy_children?: { year_group_code: string } | { year_group_code: string }[] | null }) => (
                       <a key={assessment.id}
                         href={'/dashboard/academy/assessment/results?assessment_id=' + assessment.id}
                         className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90"
