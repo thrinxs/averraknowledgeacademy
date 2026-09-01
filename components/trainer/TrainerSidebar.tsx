@@ -26,13 +26,14 @@ interface Props {
 }
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',    href: '/trainer/dashboard',          icon: LayoutDashboard },
-  { label: 'My Students',  href: '/trainer/dashboard/students', icon: Users },
-  { label: 'My Courses',   href: '/trainer/dashboard/courses',  icon: BookOpen },
-  { label: 'Schedule',     href: '/trainer/dashboard/schedule', icon: Calendar },
-  { label: 'Earnings',     href: '/trainer/dashboard/earnings', icon: DollarSign },
-  { label: 'My Profile',   href: '/trainer/dashboard/profile',  icon: User },
-  { label: 'Settings',     href: '/trainer/dashboard/settings', icon: Settings },
+  { label: 'Dashboard',         href: '/trainer/dashboard',             icon: LayoutDashboard },
+  { label: 'My Students',       href: '/trainer/dashboard/students',    icon: Users },
+  { label: 'Assessments',       href: '/trainer/dashboard/assessments', icon: BookOpen },
+  { label: 'My Courses',        href: '/trainer/dashboard/courses',     icon: BookOpen },
+  { label: 'Schedule',          href: '/trainer/dashboard/schedule',    icon: Calendar },
+  { label: 'Earnings',          href: '/trainer/dashboard/earnings',    icon: DollarSign },
+  { label: 'My Profile',        href: '/trainer/dashboard/profile',     icon: User },
+  { label: 'Settings',          href: '/trainer/dashboard/settings',    icon: Settings },
 ]
 
 export default function TrainerSidebar({

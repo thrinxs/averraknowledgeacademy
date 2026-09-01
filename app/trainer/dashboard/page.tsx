@@ -28,14 +28,25 @@ export default async function TrainerDashboardPage() {
 
   const firstName = profile.full_name?.split(' ')[0] || 'Trainer'
 
-  // Future: fetch assigned students, earnings, schedule
-  // For now show welcome state with clear next steps
+  // Fetch assigned students count
+  const { count: studentCount } = await admin
+    .from('academy_children')
+    .select('*', { count: 'exact', head: true })
+    .eq('assigned_trainer_id', user.id)
+
+  const { count: assessmentCount } = await admin
+    .from('assessments')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'completed')
+    .in('child_id',
+      (await admin.from('academy_children').select('id').eq('assigned_trainer_id', user.id)).data?.map(c => c.id) || []
+    )
 
   const stats = [
-    { label: 'Assigned Students', value: 0, icon: Users, color: '#497296', href: '/trainer/dashboard/students' },
-    { label: 'Active Courses', value: 0, icon: BookOpen, color: '#10B981', href: '/trainer/dashboard/courses' },
-    { label: 'Classes This Week', value: 0, icon: Calendar, color: '#F59E0B', href: '/trainer/dashboard/schedule' },
-    { label: 'Earnings This Month', value: '₦0', icon: DollarSign, color: '#16A34A', href: '/trainer/dashboard/earnings' },
+    { label: 'Assigned Students', value: studentCount || 0, icon: Users, color: '#497296', href: '/trainer/dashboard/students' },
+    { label: 'Assessments to Review', value: assessmentCount || 0, icon: BookOpen, color: '#F59E0B', href: '/trainer/dashboard/assessments' },
+    { label: 'Classes This Week', value: 0, icon: Calendar, color: '#10B981', href: '/trainer/dashboard/schedule' },
+    { label: 'Earnings This Month', value: '\u20a60', icon: DollarSign, color: '#16A34A', href: '/trainer/dashboard/earnings' },
   ]
 
   return (

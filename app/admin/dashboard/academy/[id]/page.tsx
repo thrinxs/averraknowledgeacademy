@@ -65,6 +65,13 @@ export default async function ManageEnrollmentPage({
     .select('*')
     .eq('enrollment_id', enrollment.id)
 
+  // Fetch all trainers for assignment dropdown
+  const { data: trainers } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .eq('role', 'trainer')
+    .order('full_name')
+
   return (
     <div className="p-6 md:p-10">
 
@@ -236,6 +243,17 @@ export default async function ManageEnrollmentPage({
             currency={enrollment.currency || 'GBP'}
             parentEmail={parent?.email || ''}
             isPaid={enrollment.payment_status === 'paid'}
+            trainers={trainers || []}
+            children={(children || []).map(c => ({
+              id: c.id,
+              full_name: c.full_name,
+              year_group_label: c.year_group_label || '',
+              subjects: c.subjects || [],
+              assigned_trainer_id: c.assigned_trainer_id || null,
+              assigned_trainer_name: c.assigned_trainer_name || null,
+              timetable: c.timetable || null,
+              timetable_confirmed: c.timetable_confirmed || false,
+            }))}
           />
         </div>
 
