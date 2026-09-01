@@ -73,7 +73,7 @@ function studentDisplay(time24: string, studentTz: string): string {
   if (!time24 || !studentTz) return ''
   const offset = getTimezoneOffset(studentTz)
   const converted = convertTime(time24, offset)
-  const tzLabel = studentTz.replace('_', ' ').split('/').pop() || studentTz
+  const tzLabel = studentTz.split('/').pop()?.replace(/_/g, ' ') || studentTz
   return `${converted} (${tzLabel})`
 }
 
