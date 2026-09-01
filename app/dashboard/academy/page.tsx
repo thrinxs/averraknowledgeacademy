@@ -385,15 +385,25 @@ export default async function StudentAcademyPage({
                               if (Array.isArray(rows)) {
                                 return (
                                   <div className="space-y-2">
-                                    {rows.map((row: { day: string; time: string; subject: string; meet_link?: string }, i: number) => (
-                                      <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-white border border-green-100">
-                                        <div>
-                                          <p className="font-semibold text-green-800">{row.day} — {row.time}</p>
-                                          <p className="text-green-600">{row.subject}</p>
+                                    {rows.map((row: { type?: string; day?: string; date?: string; start_time?: string; end_time?: string; subject: string; meet_link?: string; wat_display?: string; student_display?: string }, i: number) => (
+                                      <div key={i} className="flex items-start justify-between p-3 rounded-lg bg-white border border-green-100 gap-2">
+                                        <div className="flex-1">
+                                          <p className="font-semibold text-green-800 text-sm">
+                                            {row.type === 'weekly' ? `Every ${row.day}` : row.date}
+                                            {' — '}{row.subject}
+                                          </p>
+                                          {row.wat_display ? (
+                                            <>
+                                              <p className="text-xs text-orange-700 mt-0.5">🇳🇬 {row.wat_display}</p>
+                                              {row.student_display && <p className="text-xs text-blue-700 mt-0.5">🌍 {row.student_display}</p>}
+                                            </>
+                                          ) : (
+                                            <p className="text-xs text-green-600 mt-0.5">{row.start_time} – {row.end_time}</p>
+                                          )}
                                         </div>
                                         {row.meet_link && (
                                           <a href={row.meet_link} target="_blank" rel="noopener noreferrer"
-                                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-white text-xs font-semibold flex-shrink-0"
+                                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-white text-xs font-semibold flex-shrink-0 mt-0.5"
                                             style={{ backgroundColor: '#1A73E8' }}>
                                             Join Class
                                           </a>

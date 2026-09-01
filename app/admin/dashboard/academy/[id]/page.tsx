@@ -257,6 +257,7 @@ export default async function ManageEnrollmentPage({
               subjects: c.subjects || [],
               assigned_trainer_id: c.assigned_trainer_id || null,
               assigned_trainer_name: c.assigned_trainer_name || null,
+              timezone: c.timezone || null,
               timetable: c.timetable || null,
               timetable_confirmed: c.timetable_confirmed || false,
             }))}

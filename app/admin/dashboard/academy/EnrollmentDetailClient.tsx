@@ -2,23 +2,17 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  CheckCircle, Loader2, AlertCircle,
-  Calendar, User, ExternalLink, Edit3
-} from 'lucide-react'
+import { CheckCircle, Loader2, AlertCircle, Calendar, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import ConfirmPaymentModal from '@/components/admin/ConfirmPaymentModal'
+import TimetableBuilder, { TimetableEntry } from '@/components/admin/TimetableBuilder'
 
 interface Trainer { id: string; full_name: string; email: string }
 interface Child {
   id: string; full_name: string; year_group_label: string
   subjects: string[]; assigned_trainer_id: string | null
-  assigned_trainer_name: string | null
+  assigned_trainer_name: string | null; timezone: string | null
   timetable: string | null; timetable_confirmed: boolean
-}
-
-interface TimetableDay {
-  day: string; time: string; subject: string; meet_link: string
 }
 
 interface Props {
@@ -37,30 +31,15 @@ const SUBJECT_MAP: Record<string, string> = {
   ENGLIT: 'English Literature',
 }
 
-// Parse notes field to extract days and time
-function parseScheduleNotes(notes: string): { days: string[]; time: string } {
-  const daysMatch = notes.match(/Days?:\s*([^.]+)/i)
-  const timeMatch = notes.match(/Time:\s*([^.]+)/i)
-  const days = daysMatch
-    ? daysMatch[1].split(',').map(d => d.trim()).filter(Boolean)
-    : []
-  const time = timeMatch ? timeMatch[1].trim() : ''
-  return { days, time }
-}
-
-// Build default timetable rows from schedule notes
-function buildDefaultTimetable(
-  notes: string,
-  subjects: string[]
-): TimetableDay[] {
-  const { days, time } = parseScheduleNotes(notes)
-  if (days.length === 0) return []
-  return days.map((day, i) => ({
-    day,
-    time,
-    subject: subjects[i % subjects.length] || '',
-    meet_link: '',
-  }))
+function parseExistingTimetable(timetable: string | null): TimetableEntry[] {
+  if (!timetable) return []
+  try {
+    const parsed = JSON.parse(timetable)
+    if (Array.isArray(parsed)) return parsed as TimetableEntry[]
+    return []
+  } catch {
+    return []
+  }
 }
 
 export default function EnrollmentDetailClient({
@@ -75,43 +54,13 @@ export default function EnrollmentDetailClient({
   const [savingTimetable, setSavingTimetable] = useState<string | null>(null)
   const [timetableSuccess, setTimetableSuccess] = useState<Record<string, boolean>>({})
   const [editingTimetable, setEditingTimetable] = useState<Record<string, boolean>>({})
-
-  // Timetable rows per child
-  const [timetableRows, setTimetableRows] = useState<Record<string, TimetableDay[]>>(
-    Object.fromEntries(
-      children.map(c => [
-        c.id,
-        c.timetable
-          ? (typeof c.timetable === 'string'
-              ? (() => { try { return JSON.parse(c.timetable) } catch { return buildDefaultTimetable(scheduleNotes, c.subjects) } })()
-              : c.timetable as TimetableDay[])
-          : buildDefaultTimetable(scheduleNotes, c.subjects),
-      ])
-    )
+  const [timetableEntries, setTimetableEntries] = useState<Record<string, TimetableEntry[]>>(
+    Object.fromEntries(children.map(c => [c.id, parseExistingTimetable(c.timetable)]))
   )
-
   const router = useRouter()
 
-  function updateRow(childId: string, index: number, field: keyof TimetableDay, value: string) {
-    setTimetableRows(prev => {
-      const rows = [...(prev[childId] || [])]
-      rows[index] = { ...rows[index], [field]: value }
-      return { ...prev, [childId]: rows }
-    })
-  }
-
-  function addRow(childId: string) {
-    setTimetableRows(prev => ({
-      ...prev,
-      [childId]: [...(prev[childId] || []), { day: '', time: '', subject: '', meet_link: '' }],
-    }))
-  }
-
-  function removeRow(childId: string, index: number) {
-    setTimetableRows(prev => ({
-      ...prev,
-      [childId]: (prev[childId] || []).filter((_, i) => i !== index),
-    }))
+  function handleTimetableChange(childId: string, entries: TimetableEntry[]) {
+    setTimetableEntries(prev => ({ ...prev, [childId]: entries }))
   }
 
   async function handleAssignTrainer(childId: string) {
@@ -134,8 +83,8 @@ export default function EnrollmentDetailClient({
   }
 
   async function handleSaveTimetable(childId: string) {
-    const rows = timetableRows[childId] || []
-    if (rows.length === 0) { setError('Please add at least one timetable entry'); return }
+    const entries = timetableEntries[childId] || []
+    if (entries.length === 0) { setError('Please add at least one class entry'); return }
     setSavingTimetable(childId); setError('')
     try {
       const res = await fetch('/api/academy/timetable', {
@@ -144,7 +93,7 @@ export default function EnrollmentDetailClient({
         body: JSON.stringify({
           child_id: childId,
           enrollment_id: enrollmentId,
-          timetable: JSON.stringify(rows),
+          timetable: JSON.stringify(entries),
         }),
       })
       const data = await res.json()
@@ -156,8 +105,6 @@ export default function EnrollmentDetailClient({
       setError(err instanceof Error ? err.message : 'Failed to save timetable')
     } finally { setSavingTimetable(null) }
   }
-
-  const inputCls = 'px-2 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#497296]'
 
   return (
     <div className="space-y-4">
@@ -181,21 +128,19 @@ export default function EnrollmentDetailClient({
         </div>
       )}
 
-      {/* Class type info */}
-      {classType && (
-        <div className="p-3 rounded-xl text-xs" style={{ backgroundColor: '#EBF4FF' }}>
-          <span className="font-semibold" style={{ color: '#062850' }}>Class Type: </span>
-          <span style={{ color: '#497296' }}>
-            {classType === 'private' ? '👤 Private (1-on-1)' : '👥 General Class'}
-          </span>
-        </div>
-      )}
+      {/* Class type */}
+      <div className="p-3 rounded-xl text-xs" style={{ backgroundColor: '#EBF4FF' }}>
+        <span className="font-semibold" style={{ color: '#062850' }}>Class Type: </span>
+        <span style={{ color: '#497296' }}>
+          {classType === 'private' ? '👤 Private (1-on-1)' : '👥 General Class'}
+        </span>
+      </div>
 
       {/* Schedule from enrolment */}
       {scheduleNotes && (
         <div className="p-3 rounded-xl text-xs border border-gray-100" style={{ backgroundColor: '#F0F6FB' }}>
-          <p className="font-semibold text-gray-600 mb-1">📅 Schedule Preferences (from enrolment):</p>
-          <p className="text-gray-600">{scheduleNotes}</p>
+          <p className="font-semibold text-gray-600 mb-1">📋 Schedule Preferences (from enrolment):</p>
+          <p className="text-gray-600 leading-relaxed">{scheduleNotes}</p>
         </div>
       )}
 
@@ -212,16 +157,25 @@ export default function EnrollmentDetailClient({
           <h3 className="font-bold text-sm" style={{ color: '#062850' }}>Learner Management</h3>
 
           {children.map((child) => {
-            const rows = timetableRows[child.id] || []
             const isConfirmed = child.timetable_confirmed || timetableSuccess[child.id]
             const isEditing = editingTimetable[child.id]
+            const existingEntries = parseExistingTimetable(child.timetable)
+            const studentTz = child.timezone || 'Africa/Lagos'
 
             return (
               <div key={child.id} className="rounded-xl border border-gray-100 overflow-hidden">
                 <div className="px-4 py-3 flex items-center justify-between"
                   style={{ backgroundColor: '#062850' }}>
                   <p className="font-bold text-white text-sm">{child.full_name}</p>
-                  <span className="text-xs text-blue-300">{child.year_group_label}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-blue-300">{child.year_group_label}</span>
+                    {studentTz && studentTz !== 'Africa/Lagos' && (
+                      <span className="text-xs px-2 py-0.5 rounded-full"
+                        style={{ backgroundColor: '#1D4469', color: '#97C3E0' }}>
+                        {studentTz.split('/').pop()?.replace('_', ' ')}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="p-4 space-y-4">
@@ -239,7 +193,7 @@ export default function EnrollmentDetailClient({
                     </div>
                   </div>
 
-                  {/* Trainer */}
+                  {/* Trainer assignment */}
                   <div>
                     <p className="text-xs font-semibold text-gray-600 mb-2 flex items-center gap-1">
                       <User className="w-3 h-3" /> Assigned Trainer
@@ -272,14 +226,19 @@ export default function EnrollmentDetailClient({
 
                   {/* Timetable */}
                   <div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-3">
                       <p className="text-xs font-semibold text-gray-600 flex items-center gap-1">
                         <Calendar className="w-3 h-3" /> Timetable
+                        {studentTz && (
+                          <span className="font-normal text-gray-400 ml-1">
+                            (WAT + {studentTz.split('/').pop()?.replace('_', ' ')} shown)
+                          </span>
+                        )}
                       </p>
                       {isConfirmed && !isEditing && (
                         <button onClick={() => setEditingTimetable(prev => ({ ...prev, [child.id]: true }))}
-                          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors">
-                          <Edit3 className="w-3 h-3" /> Edit
+                          className="text-xs text-blue-600 hover:text-blue-800 transition-colors font-medium">
+                          ✏️ Edit
                         </button>
                       )}
                     </div>
@@ -287,23 +246,29 @@ export default function EnrollmentDetailClient({
                     {isConfirmed && !isEditing ? (
                       /* Show confirmed timetable */
                       <div className="space-y-2">
-                        {rows.map((row, i) => (
-                          <div key={i} className="p-3 rounded-xl border border-green-100"
+                        {existingEntries.map((entry, idx) => (
+                          <div key={idx} className="p-3 rounded-xl border border-green-100"
                             style={{ backgroundColor: '#F0FDF4' }}>
-                            <div className="flex items-center justify-between gap-2">
-                              <div>
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
                                 <p className="text-xs font-bold text-green-800">
-                                  {row.day} — {row.time}
+                                  {entry.type === 'weekly' ? `Every ${entry.day}` : entry.date}
+                                  {' — '}{SUBJECT_MAP[entry.subject] || entry.subject}
                                 </p>
-                                <p className="text-xs text-green-700">
-                                  {SUBJECT_MAP[row.subject] || row.subject}
+                                <p className="text-xs text-orange-700 mt-0.5">
+                                  🇳🇬 {entry.wat_display || `${entry.start_time} – ${entry.end_time} WAT`}
                                 </p>
+                                {entry.student_display && studentTz !== 'Africa/Lagos' && (
+                                  <p className="text-xs text-blue-700 mt-0.5">
+                                    🌍 {entry.student_display}
+                                  </p>
+                                )}
                               </div>
-                              {row.meet_link && (
-                                <a href={row.meet_link} target="_blank" rel="noopener noreferrer"
+                              {entry.meet_link && (
+                                <a href={entry.meet_link} target="_blank" rel="noopener noreferrer"
                                   className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg text-white font-medium flex-shrink-0"
                                   style={{ backgroundColor: '#1A73E8' }}>
-                                  <ExternalLink className="w-3 h-3" /> Meet
+                                  Join Class
                                 </a>
                               )}
                             </div>
@@ -311,69 +276,35 @@ export default function EnrollmentDetailClient({
                         ))}
                       </div>
                     ) : (
-                      /* Edit timetable */
-                      <div className="space-y-2">
-                        {classType === 'private' && scheduleNotes && rows.length > 0 && (
-                          <div className="p-2 rounded-xl text-xs" style={{ backgroundColor: '#EBF4FF' }}>
-                            <p className="text-blue-700">
-                              Pre-filled from enrolment preferences. Add Google Meet links and confirm.
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Column headers */}
-                        <div className="grid grid-cols-12 gap-1 px-1">
-                          <p className="col-span-3 text-xs text-gray-400">Day</p>
-                          <p className="col-span-3 text-xs text-gray-400">Time</p>
-                          <p className="col-span-3 text-xs text-gray-400">Subject</p>
-                          <p className="col-span-2 text-xs text-gray-400">Meet Link</p>
-                          <p className="col-span-1"></p>
+                      /* TimetableBuilder */
+                      <div>
+                        <TimetableBuilder
+                          childId={child.id}
+                          subjects={child.subjects}
+                          studentTimezone={studentTz}
+                          initialEntries={
+                            timetableEntries[child.id]?.length > 0
+                              ? timetableEntries[child.id]
+                              : existingEntries
+                          }
+                          onChange={handleTimetableChange}
+                        />
+                        <div className="flex gap-2 mt-3">
+                          <Button onClick={() => handleSaveTimetable(child.id)}
+                            disabled={savingTimetable === child.id}
+                            className="flex-1 text-white rounded-xl text-xs py-2.5"
+                            style={{ backgroundColor: '#497296' }}>
+                            {savingTimetable === child.id
+                              ? <><Loader2 className="w-3 h-3 animate-spin mr-1" />Saving & Notifying...</>
+                              : <><Calendar className="w-3 h-3 mr-1 inline" />Confirm Timetable & Notify Parent</>}
+                          </Button>
+                          {isEditing && (
+                            <Button variant="outline" onClick={() => setEditingTimetable(prev => ({ ...prev, [child.id]: false }))}
+                              className="rounded-xl text-xs px-4">
+                              Cancel
+                            </Button>
+                          )}
                         </div>
-
-                        {rows.map((row, i) => (
-                          <div key={i} className="grid grid-cols-12 gap-1 items-center">
-                            <input value={row.day} onChange={(e) => updateRow(child.id, i, 'day', e.target.value)}
-                              className={inputCls + ' col-span-3'} placeholder="Monday" />
-                            <input value={row.time} onChange={(e) => updateRow(child.id, i, 'time', e.target.value)}
-                              className={inputCls + ' col-span-3'} placeholder="4pm-5pm" />
-                            <select value={row.subject} onChange={(e) => updateRow(child.id, i, 'subject', e.target.value)}
-                              className={inputCls + ' col-span-3'}>
-                              <option value="">Subject</option>
-                              {child.subjects.map(s => (
-                                <option key={s} value={s}>{SUBJECT_MAP[s] || s}</option>
-                              ))}
-                            </select>
-                            <input value={row.meet_link} onChange={(e) => updateRow(child.id, i, 'meet_link', e.target.value)}
-                              className={inputCls + ' col-span-2'} placeholder="meet.google.com/..." />
-                            <button onClick={() => removeRow(child.id, i)}
-                              className="col-span-1 text-red-400 hover:text-red-600 text-xs text-center">
-                              ✕
-                            </button>
-                          </div>
-                        ))}
-
-                        <div className="flex gap-2 pt-1">
-                          <button onClick={() => addRow(child.id)}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                            + Add row
-                          </button>
-                        </div>
-
-                        <Button onClick={() => handleSaveTimetable(child.id)}
-                          disabled={savingTimetable === child.id}
-                          className="w-full text-white rounded-xl text-xs py-2 mt-2"
-                          style={{ backgroundColor: '#497296' }}>
-                          {savingTimetable === child.id
-                            ? <><Loader2 className="w-3 h-3 animate-spin mr-1" />Saving & Notifying Parent...</>
-                            : <><Calendar className="w-3 h-3 mr-1 inline" />Confirm Timetable & Notify Parent</>}
-                        </Button>
-
-                        {isEditing && (
-                          <button onClick={() => setEditingTimetable(prev => ({ ...prev, [child.id]: false }))}
-                            className="w-full text-xs text-gray-400 hover:text-gray-600 mt-1">
-                            Cancel
-                          </button>
-                        )}
                       </div>
                     )}
                   </div>
@@ -384,6 +315,7 @@ export default function EnrollmentDetailClient({
           })}
         </div>
       )}
+
     </div>
   )
 }
