@@ -247,7 +247,7 @@ export default function PrimaryAssessmentClient({
   }
 
   const sectionIcons = ['📖', '✏️', '🎤', '💬']
-  const sectionIndex = { intro: 0, reading: 0, tracing: 1, audio: 2, sentence: 3, submitting: 3 }[section]
+  const sectionIndex = { device: 0, intro: 0, reading: 0, tracing: 1, audio: 2, sentence: 3, submitting: 3 }[section]
 
   function SectionProgress({ current }: { current: number }) {
     return (
