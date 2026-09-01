@@ -171,14 +171,33 @@ export async function POST(request: NextRequest) {
       console.error('Payment confirmed email error (non-fatal):', emailErr)
     }
 
-    // Create assessments for all children (non-blocking)
+    // Create assessments for all children directly (no internal fetch)
     try {
-      const origin = request.headers.get('origin') || 'https://www.averraknowledgeacademy.com'
-      await fetch(`${origin}/api/academy/assessment/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enrollment_id: enrollmentId }),
-      })
+      const { data: children } = await supabaseAdmin
+        .from('academy_children')
+        .select('id')
+        .eq('enrollment_id', enrollmentId)
+
+      if (children && children.length > 0) {
+        for (const child of children) {
+          // Check if assessment already exists
+          const { data: existing } = await supabaseAdmin
+            .from('assessments')
+            .select('id')
+            .eq('child_id', child.id)
+            .maybeSingle()
+
+          if (!existing) {
+            await supabaseAdmin
+              .from('assessments')
+              .insert({
+                enrollment_id: enrollmentId,
+                child_id: child.id,
+                status: 'pending',
+              })
+          }
+        }
+      }
     } catch (assessmentErr) {
       console.error('Assessment creation error (non-fatal):', assessmentErr)
     }
