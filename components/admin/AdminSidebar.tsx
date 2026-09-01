@@ -13,7 +13,6 @@ import {
   MessageSquare,
   LogOut,
   Menu,
-  X,
   ChevronRight,
   Globe,
   BookOpen,
@@ -28,6 +27,8 @@ interface AdminSidebarProps {
   fullName: string
   email: string
   avatarUrl: string | null
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
 type NavItem = {
@@ -47,9 +48,10 @@ export default function AdminSidebar({
   fullName,
   email,
   avatarUrl,
+  mobileOpen = false,
+  onMobileClose,
 }: AdminSidebarProps) {
   const [mounted, setMounted] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
   const [openSections, setOpenSections] = useState<
     Record<string, boolean>
   >({
@@ -102,7 +104,7 @@ export default function AdminSidebar({
     return () => clearInterval(interval)
   }, [mounted])
 
-  useEffect(() => { setMobileOpen(false) }, [pathname])
+  useEffect(() => { onMobileClose?.() }, [pathname])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -530,36 +532,7 @@ export default function AdminSidebar({
         {sidebarContent}
       </aside>
 
-      {/* Mobile Header */}
-      <div
-        className="lg:hidden fixed top-0 left-0
-        right-0 z-50 flex items-center
-        justify-between px-4 h-16"
-        style={{ backgroundColor: '#062850' }}
-      >
-        <div className="flex items-center gap-2">
-          <Image
-            src="/footer-logo.png"
-            alt="Averra"
-            width={32}
-            height={32}
-            className="object-contain"
-          />
-          <span className="text-sm font-bold
-          text-white">
-            Averra Admin
-          </span>
-        </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="text-white p-2"
-        >
-          {mobileOpen
-            ? <X className="w-6 h-6" />
-            : <Menu className="w-6 h-6" />
-          }
-        </button>
-      </div>
+
 
       {/* Mobile Overlay */}
       {mobileOpen && (
@@ -567,7 +540,7 @@ export default function AdminSidebar({
           <div
             className="lg:hidden fixed inset-0 z-40
             bg-black/50"
-            onClick={() => setMobileOpen(false)}
+            onClick={() => onMobileClose?.()}
           />
           <aside
             className="lg:hidden fixed inset-y-0
