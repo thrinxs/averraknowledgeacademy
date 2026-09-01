@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
-import { Mic, Clock, User } from 'lucide-react'
+import { Mic, Clock, User, Play, Download, Trash2 } from 'lucide-react'
 
 function getAdminClient() {
   return createClient(
@@ -109,15 +109,33 @@ export default async function AdminAssessmentsPage() {
                     <p className="text-xs font-semibold text-gray-500 mb-3 flex items-center gap-1">
                       <Mic className="w-3 h-3" /> Audio Responses (manual review required)
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {scores.audio_responses.map((resp, i) => (
-                        <div key={i} className="p-3 rounded-xl border border-gray-100">
+                        <div key={i} className="p-4 rounded-xl border border-gray-100">
                           <p className="text-xs font-semibold mb-1" style={{ color: '#062850' }}>
                             Q{resp.question_id}: {resp.question}
                           </p>
-                          <p className="text-xs text-gray-600 italic">
-                            Student said: "{resp.transcript || '(no response recorded)'}"
+                          <p className="text-xs text-gray-600 italic mb-2">
+                            Transcript: "{resp.transcript || '(no transcript)'}"
                           </p>
+                          {(resp as AudioResponse & { audio_url?: string }).audio_url && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <audio
+                                controls
+                                src={(resp as AudioResponse & { audio_url?: string }).audio_url}
+                                className="h-8 flex-1 min-w-0"
+                                style={{ maxWidth: '300px' }}
+                              />
+                              <a
+                                href={(resp as AudioResponse & { audio_url?: string }).audio_url}
+                                download={`question_${resp.question_id}.webm`}
+                                className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-semibold text-white"
+                                style={{ backgroundColor: '#497296' }}
+                              >
+                                <Download className="w-3 h-3" /> Download
+                              </a>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
