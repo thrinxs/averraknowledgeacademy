@@ -28,6 +28,7 @@ interface Props {
 const NAV_ITEMS = [
   { label: 'Dashboard',         href: '/trainer/dashboard',             icon: LayoutDashboard },
   { label: 'My Students',       href: '/trainer/dashboard/students',    icon: Users },
+  { label: 'Learning Roadmap',  href: '/trainer/dashboard/roadmap',     icon: BookOpen },
   { label: 'Assessments',       href: '/trainer/dashboard/assessments', icon: BookOpen },
   { label: 'My Courses',        href: '/trainer/dashboard/courses',     icon: BookOpen },
   { label: 'Schedule',          href: '/trainer/dashboard/schedule',    icon: Calendar },

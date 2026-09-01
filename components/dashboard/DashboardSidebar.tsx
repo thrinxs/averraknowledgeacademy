@@ -166,6 +166,12 @@ export default function DashboardSidebar({
           icon: School,
           badge: 0,
         },
+        {
+          label: 'Learning Roadmap',
+          href: '/dashboard/academy/roadmap',
+          icon: BookOpen,
+          badge: 0,
+        },
       ],
     },
     {

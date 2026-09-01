@@ -43,6 +43,26 @@ export async function POST(request: NextRequest) {
       link: '/trainer/dashboard/students',
     })
 
+    // Auto-generate learning roadmap for this child
+    try {
+      const origin = request.headers.get('origin') || 'https://www.averraknowledgeacademy.com'
+      const { data: child } = await admin
+        .from('academy_children')
+        .select('enrollment_id')
+        .eq('id', child_id)
+        .single()
+
+      if (child?.enrollment_id) {
+        await fetch(`${origin}/api/academy/roadmap/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ child_id, enrollment_id: child.enrollment_id }),
+        })
+      }
+    } catch (roadmapErr) {
+      console.error('Roadmap generation error (non-fatal):', roadmapErr)
+    }
+
     return NextResponse.json({ success: true, trainer_name: trainer.full_name })
   } catch (err) {
     console.error('Assign trainer error:', err)
