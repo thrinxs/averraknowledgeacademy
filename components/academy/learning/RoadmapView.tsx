@@ -115,8 +115,7 @@ Duration: ${lessonPlan.duration_minutes} minutes
 
 LEARNING OBJECTIVES
 -------------------
-${(lessonPlan.objectives as string[]).map((o: string, i: number) => `${i + 1}. ${o}`).join('
-')}
+${(lessonPlan.objectives as string[]).map((o: string, i: number) => `${i + 1}. ${o}`).join('\n')}
 
 STARTER ACTIVITY (5 mins)
 --------------------------
