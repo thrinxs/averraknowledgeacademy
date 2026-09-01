@@ -49,11 +49,10 @@ export async function POST(request: NextRequest) {
       .eq('id', enrollment_id)
       .single()
 
-    const parentProfile = enrollment ? (
-      Array.isArray((enrollment as { profiles?: unknown }).profiles)
-        ? (enrollment as { profiles: { full_name: string; email: string }[] }).profiles[0]
-        : (enrollment as { profiles: { full_name: string; email: string } }).profiles
-    ) : null
+    const rawProfiles = (enrollment as unknown as { profiles: unknown }).profiles
+    const parentProfile: { full_name: string; email: string } | null = enrollment
+      ? (Array.isArray(rawProfiles) ? rawProfiles[0] : rawProfiles) as { full_name: string; email: string }
+      : null
 
     if (enrollment && parentProfile) {
       // Notify parent in-app
