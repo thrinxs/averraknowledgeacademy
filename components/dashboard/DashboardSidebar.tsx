@@ -173,6 +173,12 @@ export default function DashboardSidebar({
           icon: BookOpen,
           badge: 0,
         },
+        {
+          label: 'Classwork',
+          href: '/dashboard/academy/classwork',
+          icon: BookOpen,
+          badge: 0,
+        },
       ],
     },
     {
