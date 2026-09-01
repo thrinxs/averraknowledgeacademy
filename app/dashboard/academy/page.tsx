@@ -36,6 +36,12 @@ const billingPeriodMap: Record<string, string> = {
   monthly: 'Monthly',
   termly: 'Termly (3 Months)',
   annually: 'Annually (12 Months)',
+  '1_month': '1 Month',
+  '2_months': '2 Months',
+  '3_months': '3 Months',
+  '6_months': '6 Months',
+  '12_months': '12 Months',
+  '2_weeks': '2 Weeks',
 }
 
 const classTypeMap: Record<string, string> = {
@@ -370,8 +376,38 @@ export default async function StudentAcademyPage({
                     <div className="pt-2">
                       {child.timetable ? (
                         <div className="p-3 rounded-xl text-xs text-green-700 bg-green-50 border border-green-100">
-                          <p className="font-semibold mb-1">✅ Timetable Confirmed</p>
-                          <p>{JSON.stringify(child.timetable)}</p>
+                          <p className="font-semibold mb-2">✅ Timetable Confirmed</p>
+                          {(() => {
+                            try {
+                              const rows = typeof child.timetable === 'string'
+                                ? JSON.parse(child.timetable)
+                                : child.timetable
+                              if (Array.isArray(rows)) {
+                                return (
+                                  <div className="space-y-2">
+                                    {rows.map((row: { day: string; time: string; subject: string; meet_link?: string }, i: number) => (
+                                      <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-white border border-green-100">
+                                        <div>
+                                          <p className="font-semibold text-green-800">{row.day} — {row.time}</p>
+                                          <p className="text-green-600">{row.subject}</p>
+                                        </div>
+                                        {row.meet_link && (
+                                          <a href={row.meet_link} target="_blank" rel="noopener noreferrer"
+                                            className="flex items-center gap-1 px-2 py-1 rounded-lg text-white text-xs font-semibold flex-shrink-0"
+                                            style={{ backgroundColor: '#1A73E8' }}>
+                                            Join Class
+                                          </a>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )
+                              }
+                              return <p>{String(child.timetable)}</p>
+                            } catch {
+                              return <p>{String(child.timetable)}</p>
+                            }
+                          })()}
                         </div>
                       ) : (
                         <div className="p-3 rounded-xl text-xs text-amber-700 bg-amber-50 border border-amber-100">

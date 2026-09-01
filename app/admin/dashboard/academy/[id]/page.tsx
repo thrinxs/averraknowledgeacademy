@@ -65,6 +65,10 @@ export default async function ManageEnrollmentPage({
     .select('*')
     .eq('enrollment_id', enrollment.id)
 
+  // Derive class type from first child's learning_format
+  const classType = children?.[0]?.learning_format || 'private'
+  const scheduleNotes = enrollment.notes || ''
+
   // Fetch all trainers for assignment dropdown
   const { data: trainers } = await supabase
     .from('profiles')
@@ -244,6 +248,8 @@ export default async function ManageEnrollmentPage({
             parentEmail={parent?.email || ''}
             isPaid={enrollment.payment_status === 'paid'}
             trainers={trainers || []}
+            classType={classType}
+            scheduleNotes={scheduleNotes}
             children={(children || []).map(c => ({
               id: c.id,
               full_name: c.full_name,
