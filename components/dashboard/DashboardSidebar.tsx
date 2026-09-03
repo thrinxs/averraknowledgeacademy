@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
   DollarSign,
+  Users,
   GraduationCap,
   Trophy,
   Bell,
