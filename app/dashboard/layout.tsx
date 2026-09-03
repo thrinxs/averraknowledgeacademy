@@ -23,12 +23,18 @@ export default async function DashboardLayout({
   const admin = getAdminClient()
   const { data: profile } = await admin
     .from('profiles')
-    .select('full_name, email, role, avatar_url')
+    .select('full_name, email, role, avatar_url, account_type, parent_user_id')
     .eq('id', user.id)
     .maybeSingle()
 
+  // Redirect non-student roles to their correct dashboard
   if (profile?.role && profile.role !== 'student') {
     redirect(`/${profile.role}/dashboard`)
+  }
+
+  // Redirect child accounts to child dashboard
+  if (profile?.account_type === 'child') {
+    redirect('/child/dashboard')
   }
 
   return (

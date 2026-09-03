@@ -47,7 +47,8 @@ export default function Navbar() {
     pathname.startsWith('/affiliate/dashboard') ||
     pathname.startsWith('/trainer/dashboard') ||
     pathname.startsWith('/academy/enroll') ||
-    pathname.startsWith('/principal/dashboard')
+    pathname.startsWith('/principal/dashboard') ||
+    pathname.startsWith('/child/dashboard')
 
   if (isDashboard) return null
 
