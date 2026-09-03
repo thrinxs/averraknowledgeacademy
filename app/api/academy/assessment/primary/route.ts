@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
       : assessment.academy_children
 
     const yearGroupCode = child?.year_group_code || 'Year 1'
+    const subjects: string[] = child?.subjects || []
 
     const { data: content } = await admin
       .from('primary_assessment_content')
