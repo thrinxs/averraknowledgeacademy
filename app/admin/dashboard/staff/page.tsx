@@ -118,6 +118,7 @@ export default function AdminStaffPage() {
               className={inputCls}>
               <option value="staff">Staff</option>
               <option value="trainer">Trainer</option>
+              <option value="principal">Principal</option>
               <option value="admin">Admin</option>
             </select>
           </div>

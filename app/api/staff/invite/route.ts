@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     const { full_name, email, role } = await request.json()
     if (!full_name || !email || !role) return NextResponse.json({ error: 'full_name, email and role are required' }, { status: 400 })
-    if (!['admin', 'staff', 'trainer'].includes(role)) return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
+    if (!['admin', 'staff', 'trainer', 'principal'].includes(role)) return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
 
     // Create auth user with temporary password
     const tempPassword = crypto.randomBytes(16).toString('hex')

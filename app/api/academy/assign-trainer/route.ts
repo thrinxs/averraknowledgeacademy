@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     const admin = getAdminClient()
     const { data: profile } = await admin.from('profiles').select('role').eq('id', user.id).single()
-    if (profile?.role !== 'admin') return NextResponse.json({ error: 'Admin only' }, { status: 403 })
+    if (!['admin', 'principal'].includes(profile?.role || '')) return NextResponse.json({ error: 'Admin or Principal only' }, { status: 403 })
 
     const { child_id, trainer_id } = await request.json()
     if (!child_id || !trainer_id) return NextResponse.json({ error: 'child_id and trainer_id required' }, { status: 400 })

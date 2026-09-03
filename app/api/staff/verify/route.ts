@@ -13,6 +13,7 @@ function getAdminClient() {
 
 const ROLE_REDIRECTS: Record<string, string> = {
   admin: '/admin/dashboard',
+  principal: '/principal/dashboard',
   staff: '/staff/dashboard',
   trainer: '/trainer/dashboard',
 }

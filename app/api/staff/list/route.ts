@@ -23,7 +23,7 @@ export async function GET() {
     const { data: staffProfiles } = await admin
       .from('profiles')
       .select('id, full_name, email, role')
-      .in('role', ['admin', 'staff', 'trainer'])
+      .in('role', ['admin', 'staff', 'trainer', 'principal'])
       .order('created_at', { ascending: false })
 
     const { data: credentials } = await admin

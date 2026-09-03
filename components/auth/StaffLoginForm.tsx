@@ -39,7 +39,7 @@ export default function StaffLoginForm() {
         .eq('id', (await supabase.auth.getUser()).data.user?.id || '')
         .single()
 
-      if (!profile || !['admin', 'staff', 'trainer'].includes(profile.role)) {
+      if (!profile || !['admin', 'staff', 'trainer', 'principal'].includes(profile.role)) {
         await supabase.auth.signOut()
         setError('This login is for staff only. Please use the main login page.')
         setLoading(false)
