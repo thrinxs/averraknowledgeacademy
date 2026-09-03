@@ -179,6 +179,18 @@ export default function DashboardSidebar({
           icon: BookOpen,
           badge: 0,
         },
+        {
+          label: 'Homework',
+          href: '/dashboard/academy/homework',
+          icon: BookOpen,
+          badge: 0,
+        },
+        {
+          label: 'My Results',
+          href: '/dashboard/academy/results',
+          icon: Trophy,
+          badge: 0,
+        },
       ],
     },
     {
