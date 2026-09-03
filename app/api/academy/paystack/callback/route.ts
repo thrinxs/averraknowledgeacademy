@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     try {
       const { data: enrollment } = await supabase
         .from('academy_enrollments')
-        .select('email, full_name, currency, billing_amount')
+        .select('email, full_name, currency, billing_amount, parent_id')
         .eq('id', enrollmentId)
         .single()
 
@@ -78,6 +78,27 @@ export async function GET(request: NextRequest) {
           billingAmount: enrollment.billing_amount || 0,
           paymentMethod: 'paystack',
         })
+      }
+
+      // Credit referral commission if ref code exists
+      const refCode = request.cookies.get('averra_ref')?.value
+      if (refCode && enrollment?.parent_id) {
+        try {
+          const origin = request.headers.get('origin') || 'https://www.averraknowledgeacademy.com'
+          await fetch(`${origin}/api/referral/capture`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              referred_user_id: enrollment.parent_id,
+              service: 'academy_junior',
+              payment_amount: enrollment.billing_amount || 0,
+              currency: enrollment.currency || 'NGN',
+              ref_code: refCode,
+            }),
+          })
+        } catch (refErr) {
+          console.error('Referral capture error (non-fatal):', refErr)
+        }
       }
     } catch (emailErr) {
       console.error('Payment confirmed email error (non-fatal):', emailErr)

@@ -34,6 +34,7 @@ const NAV_ITEMS = [
   { label: 'Attendance',        href: '/trainer/dashboard/attendance', icon: Users },
   { label: 'Results',           href: '/trainer/dashboard/results',    icon: BookOpen },
   { label: 'Assessments',       href: '/trainer/dashboard/assessments', icon: BookOpen },
+  { label: 'Tests & Exams',     href: '/trainer/dashboard/tests',       icon: BookOpen },
   { label: 'My Courses',        href: '/trainer/dashboard/courses',     icon: BookOpen },
   { label: 'Schedule',          href: '/trainer/dashboard/schedule',    icon: Calendar },
   { label: 'Earnings',          href: '/trainer/dashboard/earnings',    icon: DollarSign },

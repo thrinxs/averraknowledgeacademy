@@ -202,6 +202,29 @@ export async function POST(request: NextRequest) {
       console.error('Assessment creation error (non-fatal):', assessmentErr)
     }
 
+    // Credit referral commission if ref code exists
+    try {
+      const cookieHeader = request.headers.get('cookie') || ''
+      const refMatch = cookieHeader.match(/averra_ref=([^;]+)/)
+      const refCode = refMatch ? refMatch[1] : null
+      if (refCode && enrollment.parent_id) {
+        const origin = request.headers.get('origin') || 'https://www.averraknowledgeacademy.com'
+        await fetch(`${origin}/api/referral/capture`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            referred_user_id: enrollment.parent_id,
+            service: 'academy_junior',
+            payment_amount: enrollment.billing_amount || 0,
+            currency: enrollment.currency || 'GBP',
+            ref_code: refCode,
+          }),
+        })
+      }
+    } catch (refErr) {
+      console.error('Referral capture error (non-fatal):', refErr)
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Confirm payment error:', error)

@@ -168,6 +168,12 @@ export default function DashboardSidebar({
           badge: 0,
         },
         {
+          label: 'Child Accounts',
+          href: '/dashboard/academy/children',
+          icon: Users,
+          badge: 0,
+        },
+        {
           label: 'Learning Roadmap',
           href: '/dashboard/academy/roadmap',
           icon: BookOpen,
@@ -183,6 +189,12 @@ export default function DashboardSidebar({
           label: 'Homework',
           href: '/dashboard/academy/homework',
           icon: BookOpen,
+          badge: 0,
+        },
+        {
+          label: 'Tests & Exams',
+          href: '/dashboard/academy/tests',
+          icon: Trophy,
           badge: 0,
         },
         {

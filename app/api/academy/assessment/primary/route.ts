@@ -69,15 +69,42 @@ export async function GET(request: NextRequest) {
     }
 
     const readingPassage = getContent('reading_passage')
-    const wordList = getContent('word_list')
-    const audioQuestions = getContent('audio_question')
-    const sentenceConstruction = getContent('sentence_construction')
+    const wordListFull = getContent('word_list')
+    const audioQuestionsFull = getContent('audio_question')
+    const sentenceConstructionFull = getContent('sentence_construction')
+
+    // Reduce lengths as per parent feedback
+    // Tracing: 5 words, Audio: 4 questions, Sentences: 3 starters
+    const wordList = wordListFull ? {
+      ...wordListFull,
+      content: {
+        ...wordListFull.content,
+        tracing_words: (wordListFull.content?.tracing_words || []).slice(0, 5),
+      }
+    } : null
+
+    const audioQuestions = audioQuestionsFull ? {
+      ...audioQuestionsFull,
+      content: {
+        ...audioQuestionsFull.content,
+        questions: (audioQuestionsFull.content?.questions || []).slice(0, 4),
+      }
+    } : null
+
+    const sentenceConstruction = sentenceConstructionFull ? {
+      ...sentenceConstructionFull,
+      content: {
+        ...sentenceConstructionFull.content,
+        sentences: (sentenceConstructionFull.content?.sentences || []).slice(0, 3),
+      }
+    } : null
 
     return NextResponse.json({
       success: true,
       year_group_code: yearGroupCode,
       child_name: child?.full_name || 'Learner',
       difficulty,
+      subjects,
       reading_passage: readingPassage?.content || null,
       reading_passage_id: readingPassage?.id || null,
       word_list: wordList?.content || null,

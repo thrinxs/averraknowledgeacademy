@@ -185,6 +185,28 @@ export async function GET(request: NextRequest) {
     }
 
     // ── Redirect user to success page ─────────────────
+    // Credit referral commission
+    try {
+      const cookieHeader = request.headers.get('cookie') || ''
+      const refMatch = cookieHeader.match(/averra_ref=([^;]+)/)
+      const refCode = refMatch ? refMatch[1] : null
+      if (refCode && userId) {
+        await fetch(`${requestUrl.origin}/api/referral/capture`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            referred_user_id: userId,
+            service: 'scholarship',
+            payment_amount: 0,
+            currency: 'NGN',
+            ref_code: refCode,
+          }),
+        })
+      }
+    } catch (refErr) {
+      console.error('Referral capture error (non-fatal):', refErr)
+    }
+
     return NextResponse.redirect(
       new URL('/dashboard?payment=success', requestUrl.origin)
     )
